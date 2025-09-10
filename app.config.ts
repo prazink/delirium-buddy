@@ -1,5 +1,5 @@
 
-import { ExpoConfig } from "expo-config";
+import { ExpoConfig } from "@expo/config-types";
 
 const config: ExpoConfig = {
   name: "Delirium Buddy",
@@ -7,7 +7,7 @@ const config: ExpoConfig = {
   scheme: "deliriumbuddy",
   version: "1.0.0",
   orientation: "portrait",
-  icon: "./assets/icon.png",
+  icon: "./assets/splash.png",
   userInterfaceStyle: "light",
   ios: {
     supportsTablet: true,
@@ -19,12 +19,10 @@ const config: ExpoConfig = {
   },
   splash: {
     image: "./assets/splash.png",
-    resizeMode: "contain",
-    backgroundColor: "#ffffff"
+    resizeMode: "cover",
+    backgroundColor: "#ffffff",
   },
+  
   plugins: ["expo-router"],
-  extra: {
-    eas: { projectId: "REPLACE_WITH_EAS_PROJECT_ID" }
-  }
 };
 export default config;

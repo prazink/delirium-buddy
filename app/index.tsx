@@ -1,16 +1,31 @@
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState, useCallback } from "react";
 import { Link } from "expo-router";
 import { View, Text, Button, StyleSheet, ActivityIndicator } from "react-native";
 import { loadLogs } from "./lib/storage";
 import type { LogEntry } from "./types";
 import { calculateRisk } from "./lib/risk";
 import { VictoryArea, VictoryChart, VictoryAxis, VictoryTheme, VictoryLegend, VictoryLine } from "victory-native";
+import { useFocusEffect } from "@react-navigation/native";
 
 export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [logs, setLogs] = useState<LogEntry[]>([]);
   useEffect(() => { (async () => { setLogs(await loadLogs()); setLoading(false); })(); }, []);
+  useFocusEffect(
+    useCallback(() => {
+      let isActive = true;
+      (async () => {
+        setLoading(true);
+        const data = await loadLogs();
+        if (isActive) {
+          setLogs(data);
+          setLoading(false);
+        }
+      })();
+      return () => { isActive = false; };
+    }, [])
+  );
 
   const riskState = useMemo(() => calculateRisk(logs), [logs]);
   const series = useMemo(() => logs.map(l => ({ x: l.date, agitation: l.agitation, confusion: l.confusion, sleep: l.sleepHours })), [logs]);
@@ -39,9 +54,9 @@ export default function Dashboard() {
             <VictoryAxis tickFormat={(t) => (typeof t === "string" ? t.slice(5) : t)} />
             <VictoryAxis dependentAxis />
             <VictoryLegend x={20} orientation="horizontal" gutter={18} data={[{ name: "Agitation" }, { name: "Confusion" }, { name: "Sleep (h)" }]} />
-            <VictoryArea data={series} y={(d: any) => d.agitation} />
-            <VictoryArea data={series} y={(d: any) => d.confusion} />
-            <VictoryLine data={series} y={(d: any) => d.sleep} />
+            <VictoryArea data={series} y={(d: any) => d.agitation} style={{ data: { fill: "#fca5a5", stroke: "#ef4444" } }} />
+            <VictoryArea data={series} y={(d: any) => d.confusion} style={{ data: { fill: "#fde68a", stroke: "#ca8a04" } }} />
+            <VictoryLine data={series} y={(d: any) => d.sleep} style={{ data: { stroke: "#10b981" } }} />
           </VictoryChart>
         ) : (
           <Text style={s.muted}>No data yet.</Text>

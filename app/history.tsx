@@ -1,23 +1,35 @@
 
-import React, { useEffect, useState } from "react";
-import { View, Text, StyleSheet, FlatList } from "react-native";
+import React, { useEffect, useState, useCallback } from "react";
+import { View, Text, StyleSheet, FlatList, Pressable } from "react-native";
 import { loadLogs } from "./lib/storage";
 import type { LogEntry } from "./types";
+import { useFocusEffect, useRouter } from "expo-router";
 
 export default function History() {
   const [items, setItems] = useState<LogEntry[]>([]);
+  const router = useRouter();
   useEffect(() => { (async () => setItems(await loadLogs()))(); }, []);
+  useFocusEffect(
+    useCallback(() => {
+      let active = true;
+      (async () => {
+        const data = await loadLogs();
+        if (active) setItems(data);
+      })();
+      return () => { active = false; };
+    }, [])
+  );
   return (
     <View style={h.container}>
       <Text style={h.title}>History</Text>
       <FlatList data={items} keyExtractor={(i) => i.id} renderItem={({ item }) => (
-        <View style={h.row}>
+        <Pressable style={h.row} onPress={() => router.push({ pathname: "/entry", params: { id: item.id } })}>
           <Text style={h.date}>{item.date}</Text>
           <Text>Ag:{item.agitation}  Co:{item.confusion}  Sleep:{item.sleepHours}h</Text>
           {item.medsChanged ? <Text style={h.flag}>Meds changed</Text> : null}
           {item.feverOrInfection ? <Text style={h.flag}>Fever/Infection</Text> : null}
           {item.notes ? <Text style={h.notes}>{item.notes}</Text> : null}
-        </View>
+        </Pressable>
       )} ListEmptyComponent={<Text style={{ color: '#475569' }}>No entries yet.</Text>} />
     </View>
   );

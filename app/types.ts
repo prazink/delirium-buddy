@@ -9,3 +9,8 @@ export type LogEntry = {
   feverOrInfection?: boolean;
   notes?: string;
 };
+
+export type User = {
+  id: string;
+  name: string;
+};
