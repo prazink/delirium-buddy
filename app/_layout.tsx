@@ -28,6 +28,7 @@ export default function Root() {
         <Stack.Screen name="index" options={{ title: 'Dashboard' }} />
         <Stack.Screen name="profile" options={{ title: 'Person Profile' }} />
         <Stack.Screen name="summary" options={{ title: '7-day Summary' }} />
+        <Stack.Screen name="settings" options={{ title: 'Settings' }} />
         <Stack.Screen name="log" options={{ title: 'New Log' }} />
         <Stack.Screen name="history" options={{ title: 'History' }} />
         <Stack.Screen name="entry" options={{ title: 'Entry' }} />
