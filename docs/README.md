@@ -12,10 +12,14 @@ The app is intentionally positioned as personal tracking and care conversation s
 
 ## Documentation map
 
+- [MVP Explainer](./mvp-explainer.md)
 - [Product Vision](./product-vision.md)
 - [Architecture Overview](./architecture.md)
 - [Phase 1 - Codebase Hardening and Expo SDK 54 Upgrade](./phases/phase-1-codebase-hardening.md)
 - [Phase 2 - Carer MVP Profile and Summary Features](./phases/phase-2-carer-mvp.md)
+- [Phase 3 - UX Polish and Baseline Comparison](./phases/phase-3-ux-baseline-comparison.md)
+- [Phase 3B - History and Entry Detail Polish](./phases/phase-3b-history-entry-polish.md)
+- [Phase 3C - Privacy and Local Data Controls](./phases/phase-3c-privacy-data-controls.md)
 - [Roadmap](./roadmap.md)
 - [Interview Notes](./interview-notes.md)
 
