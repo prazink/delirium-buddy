@@ -1,20 +1,47 @@
 import { router } from 'expo-router';
-import React, { useState } from 'react';
-import { ActivityIndicator, Alert, ScrollView, Share, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import {
+  ActivityIndicator,
+  Alert,
+  ScrollView,
+  Share,
+  StyleSheet,
+  Switch,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 
 import { buildAllLogsExportText } from '../src/domain/export/buildAllLogsExportText';
+import { cancelReminder, scheduleDailyReminder } from '../src/services/localReminderService';
 import { clearLogs, loadLogs } from '../src/storage/localLogRepository';
 import { clearPersonProfile, loadPersonProfile } from '../src/storage/localProfileRepository';
+import {
+  clearReminderSettings,
+  loadReminderSettings,
+  saveReminderSettings,
+  type ReminderSettings,
+} from '../src/storage/localReminderRepository';
 import { clearUser } from '../src/storage/localUserRepository';
 
 export default function SettingsScreen() {
   const [clearing, setClearing] = useState(false);
   const [exporting, setExporting] = useState(false);
+  const [savingReminder, setSavingReminder] = useState(false);
+  const [reminder, setReminder] = useState<ReminderSettings | null>(null);
+
+  useEffect(() => {
+    async function hydrateReminder() {
+      setReminder(await loadReminderSettings());
+    }
+
+    hydrateReminder();
+  }, []);
 
   function confirmClearData() {
     Alert.alert(
       'Clear local data?',
-      'This removes the local user, person profile, and all check-ins from this device. This cannot be undone.',
+      'This removes the local user, person profile, all check-ins and reminder settings from this device. This cannot be undone.',
       [
         { text: 'Cancel', style: 'cancel' },
         { text: 'Clear data', style: 'destructive', onPress: clearAllData },
@@ -34,10 +61,50 @@ export default function SettingsScreen() {
     }
   }
 
+  async function toggleReminder(enabled: boolean) {
+    if (!reminder || savingReminder) return;
+
+    try {
+      setSavingReminder(true);
+
+      if (enabled) {
+        const notificationId = await scheduleDailyReminder(reminder);
+        const nextSettings: ReminderSettings = {
+          ...reminder,
+          enabled: true,
+          notificationId,
+          updatedAt: new Date().toISOString(),
+        };
+        await saveReminderSettings(nextSettings);
+        setReminder(nextSettings);
+        Alert.alert('Reminder enabled', 'A local daily check-in reminder has been scheduled.');
+        return;
+      }
+
+      await cancelReminder(reminder.notificationId);
+      const nextSettings: ReminderSettings = {
+        ...reminder,
+        enabled: false,
+        notificationId: undefined,
+        updatedAt: new Date().toISOString(),
+      };
+      await saveReminderSettings(nextSettings);
+      setReminder(nextSettings);
+      Alert.alert('Reminder disabled', 'The local daily reminder has been turned off.');
+    } catch (error) {
+      Alert.alert('Reminder update failed', String(error));
+    } finally {
+      setSavingReminder(false);
+    }
+  }
+
   async function clearAllData() {
     try {
       setClearing(true);
-      await Promise.all([clearLogs(), clearPersonProfile(), clearUser()]);
+      if (reminder?.notificationId) {
+        await cancelReminder(reminder.notificationId);
+      }
+      await Promise.all([clearLogs(), clearPersonProfile(), clearUser(), clearReminderSettings()]);
       Alert.alert('Local data cleared', 'All local Delirium Buddy data has been removed from this device.');
       router.replace('/login');
     } catch (error) {
@@ -60,6 +127,26 @@ export default function SettingsScreen() {
         <Text style={styles.bodyText}>
           This version does not sync to a server, does not use AI, and does not send your entries to a clinic or hospital.
         </Text>
+      </View>
+
+      <View style={styles.card}>
+        <Text style={styles.cardTitle}>Daily check-in reminder</Text>
+        <Text style={styles.bodyText}>
+          Turn on a local reminder to help you remember a daily check-in. This is habit support only, not medical monitoring.
+        </Text>
+        <View style={styles.reminderRow}>
+          <View style={styles.reminderCopy}>
+            <Text style={styles.reminderTitle}>{reminder?.enabled ? 'Reminder on' : 'Reminder off'}</Text>
+            <Text style={styles.reminderText}>
+              Default time: {formatTime(reminder?.hour ?? 18, reminder?.minute ?? 0)}
+            </Text>
+          </View>
+          <Switch
+            value={Boolean(reminder?.enabled)}
+            onValueChange={toggleReminder}
+            disabled={!reminder || savingReminder}
+          />
+        </View>
       </View>
 
       <View style={styles.card}>
@@ -94,7 +181,7 @@ export default function SettingsScreen() {
       <View style={styles.dangerCard}>
         <Text style={styles.cardTitle}>Clear local data</Text>
         <Text style={styles.bodyText}>
-          Remove the local user, person profile and all check-ins stored on this device.
+          Remove the local user, person profile, reminder settings and all check-ins stored on this device.
         </Text>
         <TouchableOpacity
           style={[styles.dangerButton, clearing && styles.disabledButton]}
@@ -114,6 +201,12 @@ export default function SettingsScreen() {
       </View>
     </ScrollView>
   );
+}
+
+function formatTime(hour: number, minute: number): string {
+  const hour12 = hour % 12 || 12;
+  const suffix = hour >= 12 ? 'PM' : 'AM';
+  return `${hour12}:${String(minute).padStart(2, '0')} ${suffix}`;
 }
 
 const styles = StyleSheet.create({
@@ -146,6 +239,17 @@ const styles = StyleSheet.create({
   },
   cardTitle: { fontSize: 16, fontWeight: '800', marginBottom: 8 },
   bodyText: { color: '#475569', lineHeight: 20, marginBottom: 8 },
+  reminderRow: {
+    alignItems: 'center',
+    backgroundColor: '#f8fafc',
+    borderRadius: 14,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    padding: 12,
+  },
+  reminderCopy: { flex: 1, paddingRight: 12 },
+  reminderTitle: { fontWeight: '800', marginBottom: 2 },
+  reminderText: { color: '#64748b', fontSize: 12 },
   primaryButton: {
     alignItems: 'center',
     backgroundColor: '#111827',
