@@ -1,10 +1,12 @@
+import { useFocusEffect } from '@react-navigation/native';
 import { Link } from 'expo-router';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, Button, StyleSheet, Text, View } from 'react-native';
-import { useFocusEffect } from '@react-navigation/native';
+import { ActivityIndicator, Button, ScrollView, StyleSheet, Text, View } from 'react-native';
 
+import { BaselineInsightsCard } from '../src/components/BaselineInsightsCard';
 import { RiskCard } from '../src/components/RiskCard';
 import { TrendChart } from '../src/components/TrendChart';
+import { compareToBaseline } from '../src/domain/baseline/compareToBaseline';
 import type { LogEntry, PersonProfile } from '../src/domain/logs/log.types';
 import { calculateRisk } from '../src/domain/risk/calculateRisk';
 import { loadLogs } from '../src/storage/localLogRepository';
@@ -53,7 +55,9 @@ export default function Dashboard() {
     }, []),
   );
 
+  const latestLog = logs[logs.length - 1];
   const riskState = useMemo(() => calculateRisk(logs), [logs]);
+  const baselineInsights = useMemo(() => compareToBaseline(latestLog, profile), [latestLog, profile]);
 
   if (loading) {
     return (
@@ -64,17 +68,19 @@ export default function Dashboard() {
   }
 
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+      <Text style={styles.eyebrow}>Local-first care tracking</Text>
       <Text style={styles.title}>Delirium Buddy</Text>
       <View style={styles.profileCard}>
         <Text style={styles.profileTitle}>{profile ? profile.displayName : 'No person profile yet'}</Text>
         <Text style={styles.profileText}>
           {profile
-            ? `Baseline added for ${profile.relationship}. Use this to compare future check-ins.`
+            ? `Baseline added for ${profile.relationship}. Latest check-ins can now be compared with what is usual.`
             : 'Add a baseline so the app can compare future check-ins against what is normal for this person.'}
         </Text>
       </View>
       <RiskCard risk={riskState} />
+      <BaselineInsightsCard insights={baselineInsights} hasProfile={Boolean(profile)} hasLogs={logs.length > 0} />
       <TrendChart logs={logs} />
 
       <View style={styles.row}>
@@ -96,7 +102,7 @@ export default function Dashboard() {
           <Button title="About" />
         </Link>
       </View>
-    </View>
+    </ScrollView>
   );
 }
 
@@ -104,11 +110,21 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: '#f8fafc',
     flex: 1,
+  },
+  content: {
     padding: 16,
   },
-  title: {
-    fontSize: 24,
+  eyebrow: {
+    color: '#64748b',
+    fontSize: 12,
     fontWeight: '700',
+    letterSpacing: 0.5,
+    marginBottom: 4,
+    textTransform: 'uppercase',
+  },
+  title: {
+    fontSize: 28,
+    fontWeight: '800',
     marginBottom: 12,
   },
   profileCard: {
@@ -138,6 +154,7 @@ const styles = StyleSheet.create({
     gap: 8,
     justifyContent: 'space-between',
     marginTop: 8,
+    marginBottom: 24,
   },
   center: {
     alignItems: 'center',
