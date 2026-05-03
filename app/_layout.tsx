@@ -23,9 +23,9 @@ export default function Root() {
 
   return (
     <>
-      <StatusBar style="auto" />
+      <StatusBar style="dark" />
       <Stack screenOptions={{ headerTitle: 'Delirium Buddy' }}>
-        <Stack.Screen name="index" options={{ title: 'Dashboard' }} />
+        <Stack.Screen name="index" options={{ title: 'Dashboard', headerShown: false }} />
         <Stack.Screen name="profile" options={{ title: 'Person Profile' }} />
         <Stack.Screen name="summary" options={{ title: '7-day Summary' }} />
         <Stack.Screen name="settings" options={{ title: 'Settings' }} />
@@ -34,6 +34,7 @@ export default function Root() {
         <Stack.Screen name="entry" options={{ title: 'Entry' }} />
         <Stack.Screen name="about" options={{ title: 'About' }} />
         <Stack.Screen name="login" options={{ title: 'Login', headerShown: false }} />
+        <Stack.Screen name="welcome" options={{ title: 'Welcome', headerShown: false }} />
       </Stack>
     </>
   );
