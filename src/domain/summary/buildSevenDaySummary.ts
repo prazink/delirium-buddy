@@ -47,7 +47,7 @@ function buildSummaryText({
   redFlags: string[];
   medicationChangeDays: number;
   feverOrInfectionDays: number;
-  highestConcernDay?: LogEntry;
+  highestConcernDay?: LogEntry | undefined;
 }): string {
   if (recentLogs.length === 0) {
     return 'No check-ins have been recorded yet. This is a personal tracking summary only, not a medical diagnosis.';
