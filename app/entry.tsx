@@ -1,10 +1,11 @@
 import { useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Alert, ScrollView, Share, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 import { BaselineInsightsCard } from '../src/components/BaselineInsightsCard';
 import { RiskCard } from '../src/components/RiskCard';
 import { compareToBaseline } from '../src/domain/baseline/compareToBaseline';
+import { buildCheckInShareText } from '../src/domain/export/buildCheckInShareText';
 import { getLogObservationLabels, type ObservationLabel } from '../src/domain/logs/getLogObservationLabels';
 import type { LogEntry, PersonProfile } from '../src/domain/logs/log.types';
 import { calculateRisk } from '../src/domain/risk/calculateRisk';
@@ -32,6 +33,15 @@ export default function EntryScreen() {
   const labels = useMemo(() => (item ? getLogObservationLabels(item) : []), [item]);
   const baselineInsights = useMemo(() => compareToBaseline(item ?? undefined, profile), [item, profile]);
 
+  async function shareCheckIn() {
+    if (!item) {
+      Alert.alert('Nothing to share', 'This check-in could not be found.');
+      return;
+    }
+
+    await Share.share({ message: buildCheckInShareText(item, profile) });
+  }
+
   if (loading) {
     return (
       <View style={styles.center}>
@@ -52,6 +62,9 @@ export default function EntryScreen() {
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <Text style={styles.eyebrow}>Check-in detail</Text>
       <Text style={styles.title}>{item.date}</Text>
+      <TouchableOpacity style={styles.shareButton} onPress={shareCheckIn} activeOpacity={0.8}>
+        <Text style={styles.shareButtonText}>Share this check-in</Text>
+      </TouchableOpacity>
       {risk ? <RiskCard risk={risk} /> : null}
       <BaselineInsightsCard insights={baselineInsights} hasProfile={Boolean(profile)} hasLogs />
 
@@ -123,6 +136,14 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
   },
   title: { fontSize: 28, fontWeight: '800', marginBottom: 12 },
+  shareButton: {
+    alignItems: 'center',
+    backgroundColor: '#111827',
+    borderRadius: 12,
+    marginBottom: 12,
+    paddingVertical: 13,
+  },
+  shareButtonText: { color: '#fff', fontWeight: '800' },
   card: { backgroundColor: '#fff', borderRadius: 16, padding: 16, marginBottom: 12, borderWidth: 1, borderColor: '#e5e7eb' },
   cardTitle: { fontSize: 16, fontWeight: '700', marginBottom: 10 },
   metricRow: { flexDirection: 'row', gap: 8 },
