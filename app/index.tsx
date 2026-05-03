@@ -1,10 +1,12 @@
+import { useFocusEffect } from '@react-navigation/native';
 import { Link } from 'expo-router';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, Button, StyleSheet, Text, View } from 'react-native';
-import { useFocusEffect } from '@react-navigation/native';
+import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
+import { BaselineInsightsCard } from '../src/components/BaselineInsightsCard';
 import { RiskCard } from '../src/components/RiskCard';
 import { TrendChart } from '../src/components/TrendChart';
+import { compareToBaseline } from '../src/domain/baseline/compareToBaseline';
 import type { LogEntry, PersonProfile } from '../src/domain/logs/log.types';
 import { calculateRisk } from '../src/domain/risk/calculateRisk';
 import { loadLogs } from '../src/storage/localLogRepository';
@@ -53,7 +55,9 @@ export default function Dashboard() {
     }, []),
   );
 
+  const latestLog = logs[logs.length - 1];
   const riskState = useMemo(() => calculateRisk(logs), [logs]);
+  const baselineInsights = useMemo(() => compareToBaseline(latestLog, profile), [latestLog, profile]);
 
   if (loading) {
     return (
@@ -64,39 +68,57 @@ export default function Dashboard() {
   }
 
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+      <Text style={styles.eyebrow}>Local-first care tracking</Text>
       <Text style={styles.title}>Delirium Buddy</Text>
+
+      <Link href="/log" asChild>
+        <Pressable style={styles.primaryAction}>
+          <Text style={styles.primaryActionIcon}>＋</Text>
+          <View style={styles.primaryActionCopy}>
+            <Text style={styles.primaryActionTitle}>Add check-in</Text>
+            <Text style={styles.primaryActionText}>Record today’s changes, sleep, red flags and notes.</Text>
+          </View>
+        </Pressable>
+      </Link>
+
       <View style={styles.profileCard}>
         <Text style={styles.profileTitle}>{profile ? profile.displayName : 'No person profile yet'}</Text>
         <Text style={styles.profileText}>
           {profile
-            ? `Baseline added for ${profile.relationship}. Use this to compare future check-ins.`
+            ? `Baseline added for ${profile.relationship}. Latest check-ins can now be compared with what is usual.`
             : 'Add a baseline so the app can compare future check-ins against what is normal for this person.'}
         </Text>
       </View>
       <RiskCard risk={riskState} />
+      <BaselineInsightsCard insights={baselineInsights} hasProfile={Boolean(profile)} hasLogs={logs.length > 0} />
       <TrendChart logs={logs} />
 
-      <View style={styles.row}>
-        <Link href="/profile" asChild>
-          <Button title="Profile" />
-        </Link>
-        <Link href="/log" asChild>
-          <Button title="New Log" />
-        </Link>
-        <Link href="/history" asChild>
-          <Button title="History" />
-        </Link>
+      <Text style={styles.sectionLabel}>Quick actions</Text>
+      <View style={styles.actionGrid}>
+        <DashboardAction href="/profile" title="Profile" description="Baseline" />
+        <DashboardAction href="/history" title="History" description="Past logs" />
+        <DashboardAction href="/summary" title="7-day Summary" description="Shareable" />
+        <DashboardAction href="/about" title="About" description="Safety info" />
       </View>
-      <View style={styles.rowSecondary}>
-        <Link href="/summary" asChild>
-          <Button title="7-day Summary" />
-        </Link>
-        <Link href="/about" asChild>
-          <Button title="About" />
-        </Link>
-      </View>
-    </View>
+    </ScrollView>
+  );
+}
+
+type DashboardActionProps = {
+  href: '/profile' | '/history' | '/summary' | '/about';
+  title: string;
+  description: string;
+};
+
+function DashboardAction({ href, title, description }: DashboardActionProps) {
+  return (
+    <Link href={href} asChild>
+      <Pressable style={styles.actionCard}>
+        <Text style={styles.actionTitle}>{title}</Text>
+        <Text style={styles.actionDescription}>{description}</Text>
+      </Pressable>
+    </Link>
   );
 }
 
@@ -104,12 +126,50 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: '#f8fafc',
     flex: 1,
+  },
+  content: {
     padding: 16,
   },
-  title: {
-    fontSize: 24,
+  eyebrow: {
+    color: '#64748b',
+    fontSize: 12,
     fontWeight: '700',
+    letterSpacing: 0.5,
+    marginBottom: 4,
+    textTransform: 'uppercase',
+  },
+  title: {
+    fontSize: 28,
+    fontWeight: '800',
     marginBottom: 12,
+  },
+  primaryAction: {
+    alignItems: 'center',
+    backgroundColor: '#111827',
+    borderRadius: 18,
+    flexDirection: 'row',
+    gap: 12,
+    marginBottom: 12,
+    padding: 16,
+  },
+  primaryActionIcon: {
+    color: '#fff',
+    fontSize: 32,
+    fontWeight: '700',
+    lineHeight: 36,
+  },
+  primaryActionCopy: {
+    flex: 1,
+  },
+  primaryActionTitle: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: '800',
+    marginBottom: 2,
+  },
+  primaryActionText: {
+    color: '#cbd5e1',
+    lineHeight: 20,
   },
   profileCard: {
     backgroundColor: '#fff',
@@ -128,16 +188,36 @@ const styles = StyleSheet.create({
     color: '#475569',
     lineHeight: 20,
   },
-  row: {
-    flexDirection: 'row',
-    gap: 8,
-    justifyContent: 'space-between',
+  sectionLabel: {
+    color: '#334155',
+    fontSize: 14,
+    fontWeight: '800',
+    marginBottom: 8,
+    marginTop: 4,
   },
-  rowSecondary: {
+  actionGrid: {
     flexDirection: 'row',
-    gap: 8,
-    justifyContent: 'space-between',
-    marginTop: 8,
+    flexWrap: 'wrap',
+    gap: 10,
+    marginBottom: 24,
+  },
+  actionCard: {
+    backgroundColor: '#fff',
+    borderColor: '#e5e7eb',
+    borderRadius: 16,
+    borderWidth: 1,
+    padding: 14,
+    width: '48%',
+  },
+  actionTitle: {
+    color: '#111827',
+    fontSize: 15,
+    fontWeight: '800',
+    marginBottom: 2,
+  },
+  actionDescription: {
+    color: '#64748b',
+    fontSize: 12,
   },
   center: {
     alignItems: 'center',
