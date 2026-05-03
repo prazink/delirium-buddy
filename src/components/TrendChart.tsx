@@ -32,19 +32,24 @@ export function TrendChart({ logs }: TrendChartProps) {
       {series.length >= 2 ? (
         <VictoryChart
           height={230}
-          padding={{ top: 38, bottom: 42, left: 42, right: 20 }}
+          padding={{ top: 38, bottom: 44, left: 42, right: 48 }}
           theme={VictoryTheme.material}
           domain={{ y: [0, 10] }}
-          domainPadding={{ x: 18, y: 10 }}
+          domainPadding={{ x: 24, y: 10 }}
         >
-          <VictoryAxis tickFormat={(value) => (typeof value === 'string' ? value.slice(5) : value)} />
-          <VictoryAxis dependentAxis tickValues={[0, 2, 4, 6, 8, 10]} />
+          <VictoryAxis
+            fixLabelOverlap
+            style={{ tickLabels: { fontSize: 11, padding: 8 } }}
+            tickFormat={(value) => (typeof value === 'string' ? value.slice(5) : value)}
+          />
+          <VictoryAxis dependentAxis tickValues={[0, 2, 4, 6, 8, 10]} style={{ tickLabels: { fontSize: 11 } }} />
           <VictoryLegend
             x={42}
             y={4}
             orientation="horizontal"
-            gutter={18}
+            gutter={16}
             data={[{ name: 'Agitation' }, { name: 'Confusion' }, { name: 'Sleep' }]}
+            style={{ labels: { fontSize: 11 } }}
           />
           <VictoryLine data={series} y="agitation" style={{ data: { stroke: '#ef4444', strokeWidth: 3 } }} />
           <VictoryLine data={series} y="confusion" style={{ data: { stroke: '#ca8a04', strokeWidth: 3 } }} />
