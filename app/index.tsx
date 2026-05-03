@@ -4,6 +4,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { BaselineInsightsCard } from '../src/components/BaselineInsightsCard';
+import { OnboardingStepCard } from '../src/components/OnboardingStepCard';
 import { RiskCard } from '../src/components/RiskCard';
 import { TrendChart } from '../src/components/TrendChart';
 import { compareToBaseline } from '../src/domain/baseline/compareToBaseline';
@@ -71,6 +72,26 @@ export default function Dashboard() {
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <Text style={styles.eyebrow}>Local-first care tracking</Text>
       <Text style={styles.title}>Delirium Buddy</Text>
+
+      {!profile ? (
+        <OnboardingStepCard
+          stepLabel="Step 1"
+          title="Add the person you are supporting"
+          description="Create a simple baseline first. This helps compare future check-ins with what is usual for that person."
+          actionLabel="Create person profile"
+          href="/profile"
+        />
+      ) : null}
+
+      {profile && logs.length === 0 ? (
+        <OnboardingStepCard
+          stepLabel="Step 2"
+          title="Add the first check-in"
+          description="Record today’s sleep, confusion, agitation, red flags and notes to unlock dashboard insights."
+          actionLabel="Add first check-in"
+          href="/log"
+        />
+      ) : null}
 
       <Link href="/log" asChild>
         <Pressable style={styles.primaryAction}>
