@@ -1,0 +1,40 @@
+<svg width="1080" height="1920" viewBox="0 0 1080 1920" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1080" height="1920" fill="#F8FAFC"/>
+  <circle cx="-50" cy="80" r="360" fill="#DBEAFE" opacity="0.85"/>
+  <circle cx="1020" cy="1460" r="360" fill="#99F6E4" opacity="0.28"/>
+  <path d="M0 1530C220 1430 340 1610 540 1500C740 1390 840 1470 1080 1360V1920H0V1530Z" fill="url(#waveA)"/>
+  <path d="M0 1640C220 1570 360 1740 560 1620C760 1500 900 1590 1080 1500V1920H0V1640Z" fill="url(#waveB)"/>
+  <g opacity="0.16">
+    <rect x="94" y="290" width="250" height="250" rx="42" fill="#60A5FA"/>
+    <circle cx="150" cy="380" r="20" fill="#0EA5A4"/>
+    <circle cx="220" cy="380" r="20" fill="#60A5FA"/>
+    <circle cx="290" cy="380" r="20" fill="#60A5FA"/>
+    <circle cx="150" cy="450" r="20" fill="#60A5FA"/>
+    <circle cx="220" cy="450" r="20" fill="#0EA5A4"/>
+    <path d="M207 450L219 462L244 434" stroke="white" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <g opacity="0.2">
+    <path d="M705 340C750 280 825 300 850 355C870 400 850 455 792 482" fill="#60A5FA"/>
+    <path d="M820 430C890 380 970 420 990 500C1010 580 940 650 835 620" fill="#93C5FD"/>
+  </g>
+  <g transform="translate(384 610) scale(0.61)">
+    <rect x="48" y="48" width="416" height="416" rx="108" fill="url(#iconBg)"/>
+    <path d="M151 281C122 266 106 237 112 207C118 177 143 155 174 153C186 124 216 106 250 111C273 114 293 127 306 147C324 138 346 138 365 148C390 161 404 188 399 216C422 225 436 248 432 273C428 303 404 323 374 326H309C296 351 272 365 244 363C225 362 207 354 193 341L151 372V281Z" stroke="#EAF6FF" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M256 289C256 289 209 263 209 228C209 207 224 194 242 194C253 194 263 199 270 209C277 199 287 194 298 194C316 194 331 207 331 228C331 263 284 289 284 289L270 300L256 289Z" fill="url(#heart)"/>
+    <path d="M139 338C104 302 90 250 104 202C120 148 165 108 221 99" stroke="#38BDF8" stroke-width="14" stroke-linecap="round"/>
+    <path d="M331 102C386 125 422 178 422 237C422 291 393 340 346 366" stroke="#2DD4BF" stroke-width="14" stroke-linecap="round"/>
+    <circle cx="374" cy="119" r="28" fill="#99F6E4"/>
+  </g>
+  <text x="540" y="1025" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="92" font-weight="800" fill="#0F2A5F">Delirium <tspan fill="#0EA5A4">Buddy</tspan></text>
+  <rect x="450" y="1080" width="140" height="8" rx="4" fill="#7DD3FC"/>
+  <circle cx="622" cy="1084" r="8" fill="#2DD4BF"/>
+  <text x="540" y="1185" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="40" font-weight="700" fill="#0F2A5F">Track daily changes.</text>
+  <text x="540" y="1242" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="40" font-weight="700" fill="#0F2A5F">Share clearer care conversations.</text>
+  <text x="540" y="1790" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="32" font-weight="700" fill="white">Built for carers. Focused on clarity.</text>
+  <defs>
+    <linearGradient id="waveA" x1="0" y1="1360" x2="1080" y2="1920" gradientUnits="userSpaceOnUse"><stop stop-color="#2563EB"/><stop offset="1" stop-color="#0EA5A4"/></linearGradient>
+    <linearGradient id="waveB" x1="0" y1="1500" x2="1080" y2="1920" gradientUnits="userSpaceOnUse"><stop stop-color="#1D4ED8"/><stop offset="1" stop-color="#0F766E"/></linearGradient>
+    <linearGradient id="iconBg" x1="48" y1="48" x2="464" y2="464" gradientUnits="userSpaceOnUse"><stop stop-color="#1E3A8A"/><stop offset="1" stop-color="#0F172A"/></linearGradient>
+    <linearGradient id="heart" x1="270" y1="194" x2="270" y2="300" gradientUnits="userSpaceOnUse"><stop stop-color="#FED7AA"/><stop offset="1" stop-color="#FB7185"/></linearGradient>
+  </defs>
+</svg>
