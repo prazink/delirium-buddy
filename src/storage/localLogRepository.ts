@@ -32,3 +32,7 @@ export async function saveLogs(items: LogEntry[]): Promise<void> {
 
   await AsyncStorage.setItem(LOGS_KEY, JSON.stringify(sortedItems));
 }
+
+export async function clearLogs(): Promise<void> {
+  await AsyncStorage.removeItem(LOGS_KEY);
+}

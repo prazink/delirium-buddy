@@ -99,6 +99,7 @@ export default function Dashboard() {
         <DashboardAction href="/profile" title="Profile" description="Baseline" />
         <DashboardAction href="/history" title="History" description="Past logs" />
         <DashboardAction href="/summary" title="7-day Summary" description="Shareable" />
+        <DashboardAction href="/settings" title="Settings" description="Privacy & data" />
         <DashboardAction href="/about" title="About" description="Safety info" />
       </View>
     </ScrollView>
@@ -106,7 +107,7 @@ export default function Dashboard() {
 }
 
 type DashboardActionProps = {
-  href: '/profile' | '/history' | '/summary' | '/about';
+  href: '/profile' | '/history' | '/summary' | '/settings' | '/about';
   title: string;
   description: string;
 };
