@@ -1,31 +1,38 @@
+import { router, SplashScreen, Stack } from 'expo-router';
+import { StatusBar } from 'expo-status-bar';
+import React, { useEffect } from 'react';
 
-import { Stack, SplashScreen, router } from "expo-router";
-import { StatusBar } from "expo-status-bar";
-import React, { useEffect } from "react";
-import { loadUser } from "./lib/storage";
+import { loadUser } from '../src/storage/localUserRepository';
 
-// Keep the splash screen visible while we set up the root layout
 SplashScreen.preventAutoHideAsync();
+
 export default function Root() {
   useEffect(() => {
-    (async () => {
+    async function bootstrap() {
       const user = await loadUser();
+
       if (!user) {
-        router.replace("/login");
+        router.replace('/login');
       }
-      SplashScreen.hideAsync();
-    })();
+
+      await SplashScreen.hideAsync();
+    }
+
+    bootstrap();
   }, []);
+
   return (
     <>
       <StatusBar style="auto" />
-      <Stack screenOptions={{ headerTitle: "Delirium Buddy" }}>
-        <Stack.Screen name="index" options={{ title: "Dashboard" }} />
-        <Stack.Screen name="log" options={{ title: "New Log" }} />
-        <Stack.Screen name="history" options={{ title: "History" }} />
-        <Stack.Screen name="entry" options={{ title: "Entry" }} />
-        <Stack.Screen name="about" options={{ title: "About" }} />
-        <Stack.Screen name="login" options={{ title: "Login", headerShown: false }} />
+      <Stack screenOptions={{ headerTitle: 'Delirium Buddy' }}>
+        <Stack.Screen name="index" options={{ title: 'Dashboard' }} />
+        <Stack.Screen name="profile" options={{ title: 'Person Profile' }} />
+        <Stack.Screen name="summary" options={{ title: '7-day Summary' }} />
+        <Stack.Screen name="log" options={{ title: 'New Log' }} />
+        <Stack.Screen name="history" options={{ title: 'History' }} />
+        <Stack.Screen name="entry" options={{ title: 'Entry' }} />
+        <Stack.Screen name="about" options={{ title: 'About' }} />
+        <Stack.Screen name="login" options={{ title: 'Login', headerShown: false }} />
       </Stack>
     </>
   );
