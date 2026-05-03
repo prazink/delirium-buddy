@@ -1,13 +1,15 @@
 import { router } from 'expo-router';
 import React, { useState } from 'react';
-import { ActivityIndicator, Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Alert, ScrollView, Share, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
-import { clearLogs } from '../src/storage/localLogRepository';
-import { clearPersonProfile } from '../src/storage/localProfileRepository';
+import { buildAllLogsExportText } from '../src/domain/export/buildAllLogsExportText';
+import { clearLogs, loadLogs } from '../src/storage/localLogRepository';
+import { clearPersonProfile, loadPersonProfile } from '../src/storage/localProfileRepository';
 import { clearUser } from '../src/storage/localUserRepository';
 
 export default function SettingsScreen() {
   const [clearing, setClearing] = useState(false);
+  const [exporting, setExporting] = useState(false);
 
   function confirmClearData() {
     Alert.alert(
@@ -18,6 +20,18 @@ export default function SettingsScreen() {
         { text: 'Clear data', style: 'destructive', onPress: clearAllData },
       ],
     );
+  }
+
+  async function exportAllLogs() {
+    try {
+      setExporting(true);
+      const [logs, profile] = await Promise.all([loadLogs(), loadPersonProfile()]);
+      await Share.share({ message: buildAllLogsExportText(logs, profile) });
+    } catch (error) {
+      Alert.alert('Could not export logs', String(error));
+    } finally {
+      setExporting(false);
+    }
   }
 
   async function clearAllData() {
@@ -46,6 +60,28 @@ export default function SettingsScreen() {
         <Text style={styles.bodyText}>
           This version does not sync to a server, does not use AI, and does not send your entries to a clinic or hospital.
         </Text>
+      </View>
+
+      <View style={styles.card}>
+        <Text style={styles.cardTitle}>Export local logs</Text>
+        <Text style={styles.bodyText}>
+          Share a plain-text export of the check-ins stored on this device. You choose where to send or save it.
+        </Text>
+        <TouchableOpacity
+          style={[styles.primaryButton, exporting && styles.disabledButton]}
+          onPress={exportAllLogs}
+          disabled={exporting}
+          activeOpacity={0.8}
+        >
+          {exporting ? (
+            <View style={styles.buttonInner}>
+              <ActivityIndicator color="#fff" />
+              <Text style={styles.primaryButtonText}>Preparing export...</Text>
+            </View>
+          ) : (
+            <Text style={styles.primaryButtonText}>Export all local logs</Text>
+          )}
+        </TouchableOpacity>
       </View>
 
       <View style={styles.card}>
@@ -110,6 +146,14 @@ const styles = StyleSheet.create({
   },
   cardTitle: { fontSize: 16, fontWeight: '800', marginBottom: 8 },
   bodyText: { color: '#475569', lineHeight: 20, marginBottom: 8 },
+  primaryButton: {
+    alignItems: 'center',
+    backgroundColor: '#111827',
+    borderRadius: 12,
+    marginTop: 6,
+    paddingVertical: 14,
+  },
+  primaryButtonText: { color: '#fff', fontWeight: '800' },
   dangerButton: {
     alignItems: 'center',
     backgroundColor: '#dc2626',
