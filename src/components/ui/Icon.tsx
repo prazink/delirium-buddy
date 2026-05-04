@@ -23,7 +23,12 @@ export type IconName =
   | 'settings'
   | 'info'
   | 'chevron-right'
-  | 'shield';
+  | 'shield'
+  | 'home'
+  | 'clipboard'
+  | 'bell'
+  | 'checklist'
+  | 'more-horizontal';
 
 interface IconProps {
   name: IconName;
@@ -68,6 +73,55 @@ export function Icon({ name, size = 24, color = 'currentColor' }: IconProps) {
         <Svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={2.5} strokeLinecap="round">
           <Line x1="12" y1="5" x2="12" y2="19" />
           <Line x1="5" y1="12" x2="19" y2="12" />
+        </Svg>
+      );
+
+    case 'home':
+      return (
+        <Svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={2.3} strokeLinecap="round" strokeLinejoin="round">
+          <Path d="M3 10.8 12 3l9 7.8" />
+          <Path d="M5.5 10.2V21h13V10.2" />
+          <Path d="M9.5 21v-6h5v6" />
+        </Svg>
+      );
+
+    case 'clipboard':
+      return (
+        <Svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={2.1} strokeLinecap="round" strokeLinejoin="round">
+          <Rect x="5" y="4" width="14" height="17" rx="2" />
+          <Path d="M9 4.5A3 3 0 0 1 12 2a3 3 0 0 1 3 2.5" />
+          <Path d="M9 9h6" />
+          <Path d="M9 13h6" />
+          <Path d="M9 17h4" />
+        </Svg>
+      );
+
+    case 'bell':
+      return (
+        <Svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={2.1} strokeLinecap="round" strokeLinejoin="round">
+          <Path d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9" />
+          <Path d="M10 21a2.5 2.5 0 0 0 4 0" />
+        </Svg>
+      );
+
+    case 'checklist':
+      return (
+        <Svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={2.1} strokeLinecap="round" strokeLinejoin="round">
+          <Path d="m5 7 1.5 1.5L9 5.5" />
+          <Path d="M12 7h7" />
+          <Path d="m5 13 1.5 1.5L9 11.5" />
+          <Path d="M12 13h7" />
+          <Path d="m5 19 1.5 1.5L9 17.5" />
+          <Path d="M12 19h7" />
+        </Svg>
+      );
+
+    case 'more-horizontal':
+      return (
+        <Svg width={s} height={s} viewBox="0 0 24 24" fill="none">
+          <Circle cx="5" cy="12" r="2" fill={color} />
+          <Circle cx="12" cy="12" r="2" fill={color} />
+          <Circle cx="19" cy="12" r="2" fill={color} />
         </Svg>
       );
 
