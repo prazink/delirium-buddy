@@ -2,6 +2,16 @@ import { z } from 'zod';
 
 const isoDatePattern = /^\d{4}-\d{2}-\d{2}$/;
 
+export const FourAtScreeningSchema = z.object({
+  arousal: z.union([z.literal(0), z.literal(4)]),
+  amt4: z.union([z.literal(0), z.literal(1), z.literal(2)]),
+  attention: z.union([z.literal(0), z.literal(1), z.literal(2)]),
+  acuteChange: z.union([z.literal(0), z.literal(4)]),
+  completedAt: z.string().min(1).optional(),
+  assessorRole: z.enum(['family_carer', 'nurse', 'clinician', 'other']).optional(),
+  notes: z.string().max(1000).optional(),
+});
+
 export const LogEntrySchema = z.object({
   id: z.string().min(1),
   date: z.string().regex(isoDatePattern, 'Date must use YYYY-MM-DD format'),
@@ -19,6 +29,7 @@ export const LogEntrySchema = z.object({
   urineInfectionConcern: z.boolean().optional(),
   glassesOrHearingAidsMissing: z.boolean().optional(),
   suddenChange: z.boolean().optional(),
+  fourAt: FourAtScreeningSchema.optional(),
   notes: z.string().max(1000).optional(),
 });
 
