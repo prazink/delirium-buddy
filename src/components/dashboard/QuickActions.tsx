@@ -2,6 +2,7 @@ import { useRouter } from 'expo-router';
 import React from 'react';
 import { Pressable, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 
+import { palette } from '../../theme/tokens';
 import { useTheme } from '../../theme/useTheme';
 import { AppText } from '../ui/AppText';
 import { Card } from '../ui/Card';
@@ -13,59 +14,50 @@ interface QuickAction {
   href: QuickActionHref;
   icon: IconName;
   label: string;
-  iconColor: string;
 }
 
 interface QuickActionsProps {
   style?: StyleProp<ViewStyle>;
 }
 
-/**
- * 5-item row of tappable action tiles: icon centred above label text.
- * Uses router.push (not Link asChild) so flex: 1 is never broken by a wrapper.
- * @example <QuickActions />
- */
 export function QuickActions({ style }: QuickActionsProps) {
   const { colors } = useTheme();
   const router = useRouter();
 
   const actions: QuickAction[] = [
-    { href: '/profile',  icon: 'person',    label: 'Profile',        iconColor: colors.primary },
-    { href: '/history',  icon: 'history',   label: 'History',        iconColor: colors.primaryStrong },
-    { href: '/summary',  icon: 'bar-chart', label: '7-day\nSummary', iconColor: colors.success },
-    { href: '/settings', icon: 'settings',  label: 'Settings',       iconColor: colors.warning },
-    { href: '/about',    icon: 'info',       label: 'About',          iconColor: colors.primaryStrong },
+    { href: '/profile', icon: 'person', label: 'Profile' },
+    { href: '/history', icon: 'history', label: 'History' },
+    { href: '/summary', icon: 'bar-chart', label: 'Handover summary' },
+    { href: '/settings', icon: 'settings', label: 'Settings' },
+    { href: '/about', icon: 'info', label: 'About' },
   ];
 
   return (
-    <Card style={style}>
+    <Card style={[styles.card, style]}>
       <AppText variant="sectionTitle" color={colors.textPrimary} style={styles.title}>
-        Quick Actions
+        Quick actions
       </AppText>
 
-      <View style={styles.grid}>
-        {actions.map((action) => (
+      <View style={styles.list}>
+        {actions.map((action, index) => (
           <Pressable
             key={action.href}
             onPress={() => router.push(action.href)}
             accessibilityRole="button"
-            accessibilityLabel={action.label.replace('\n', ' ')}
+            accessibilityLabel={action.label}
             style={({ pressed }) => [
               styles.item,
-              {
-                backgroundColor: pressed ? colors.actionBg : colors.surface,
-                borderColor: colors.quickBorder,
-              },
+              index < actions.length - 1 && styles.itemBorder,
+              pressed && styles.pressed,
             ]}
           >
-            <Icon name={action.icon} size={22} color={action.iconColor} />
-            <AppText
-              variant="captionBold"
-              color={colors.textPrimary}
-              style={styles.label}
-            >
+            <View style={styles.iconBubble} accessibilityElementsHidden>
+              <Icon name={action.icon} size={20} color={palette.navy900} />
+            </View>
+            <AppText variant="bodyMd" color={palette.navy900} style={styles.label}>
               {action.label}
             </AppText>
+            <Icon name="chevron-right" size={18} color="#7890aa" />
           </Pressable>
         ))}
       </View>
@@ -74,26 +66,42 @@ export function QuickActions({ style }: QuickActionsProps) {
 }
 
 const styles = StyleSheet.create({
-  title: {
-    marginBottom: 14,
+  card: {
+    flex: 1,
+    minWidth: 0,
   },
-  grid: {
-    flexDirection: 'row',
-    gap: 8,
+  title: {
+    fontWeight: '900',
+    marginBottom: 10,
+  },
+  list: {
+    gap: 0,
   },
   item: {
-    flex: 1,
-    minHeight: 78,
-    borderWidth: 1,
-    borderRadius: 14,
-    paddingVertical: 12,
-    paddingHorizontal: 6,
     alignItems: 'center',
+    borderRadius: 12,
+    flexDirection: 'row',
+    gap: 12,
+    minHeight: 46,
+    paddingVertical: 7,
+  },
+  itemBorder: {
+    borderBottomColor: '#eef2f6',
+    borderBottomWidth: 1,
+  },
+  iconBubble: {
+    alignItems: 'center',
+    backgroundColor: '#eef3f8',
+    borderRadius: 14,
+    height: 34,
     justifyContent: 'center',
-    gap: 6,
+    width: 34,
   },
   label: {
-    textAlign: 'center',
-    lineHeight: 15,
+    flex: 1,
+    fontWeight: '700',
+  },
+  pressed: {
+    backgroundColor: '#f4f7fb',
   },
 });
