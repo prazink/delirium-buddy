@@ -1,7 +1,8 @@
 import { useFocusEffect } from '@react-navigation/native';
 import { router } from 'expo-router';
 import React, { useCallback, useMemo } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 import {
   AppHeader,
@@ -14,12 +15,12 @@ import {
   RiskSummary,
 } from '../src/components/dashboard';
 import { OnboardingStepCard } from '../src/components/OnboardingStepCard';
+import type { InsightTile } from '../src/components/dashboard/InsightsGrid';
 import { compareToBaseline } from '../src/domain/baseline/compareToBaseline';
 import { calculateRisk } from '../src/domain/risk/calculateRisk';
 import { useCheckInStore } from '../src/stores/checkInStore';
 import { usePatientStore } from '../src/stores/patientStore';
 import { useTheme } from '../src/theme/useTheme';
-import type { InsightTile } from '../src/components/dashboard/InsightsGrid';
 import { MOCK_INSIGHTS } from '../mocks';
 
 /** Extracts "9:20 am" style string from an ISO datetime if it falls on todayStr. */
@@ -37,13 +38,13 @@ export default function Dashboard() {
   const { colors } = useTheme();
 
   // ─── State ────────────────────────────────────────────────────────────────
-  const profile      = usePatientStore((s) => s.profile);
+  const profile = usePatientStore((s) => s.profile);
   const profileReady = usePatientStore((s) => s.isLoaded);
-  const loadProfile  = usePatientStore((s) => s.loadProfile);
+  const loadProfile = usePatientStore((s) => s.loadProfile);
 
-  const logs      = useCheckInStore((s) => s.logs);
+  const logs = useCheckInStore((s) => s.logs);
   const logsReady = useCheckInStore((s) => s.isLoaded);
-  const loadLogs  = useCheckInStore((s) => s.loadLogs);
+  const loadLogs = useCheckInStore((s) => s.loadLogs);
 
   // Reload on every screen focus so edits from other screens are reflected.
   useFocusEffect(
@@ -54,8 +55,8 @@ export default function Dashboard() {
   );
 
   // ─── Derived ──────────────────────────────────────────────────────────────
-  const latestLog    = logs[logs.length - 1];
-  const riskState    = useMemo(() => calculateRisk(logs), [logs]);
+  const latestLog = logs[logs.length - 1];
+  const riskState = useMemo(() => calculateRisk(logs), [logs]);
   const baselineData = useMemo(
     () => compareToBaseline(latestLog, profile),
     [latestLog, profile],
@@ -98,74 +99,79 @@ export default function Dashboard() {
   const isReady = profileReady && logsReady;
 
   return (
-    <ScrollView
-      style={[styles.scroll, { backgroundColor: colors.pageBg }]}
-      contentContainerStyle={styles.content}
-      showsVerticalScrollIndicator={false}
-    >
-      {/* Header */}
-      <AppHeader />
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.pageBg }]} edges={['top']}>
+      <ScrollView
+        style={styles.scroll}
+        contentContainerStyle={styles.content}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Header */}
+        <AppHeader />
 
-      {/* Onboarding nudges */}
-      {isReady && !profile && (
-        <OnboardingStepCard
-          stepLabel="Step 1"
-          title="Add the person you are supporting"
-          description="Create a simple baseline first. This helps compare future check-ins with what is usual for that person."
-          actionLabel="Create person profile"
-          href="/profile"
+        {/* Onboarding nudges */}
+        {isReady && !profile && (
+          <OnboardingStepCard
+            stepLabel="Step 1"
+            title="Add the person you are supporting"
+            description="Create a simple baseline first. This helps compare future check-ins with what is usual for that person."
+            actionLabel="Create person profile"
+            href="/profile"
+          />
+        )}
+        {isReady && profile && logs.length === 0 && (
+          <OnboardingStepCard
+            stepLabel="Step 2"
+            title="Add the first check-in"
+            description="Record today's sleep, confusion, agitation, red flags and notes to unlock dashboard insights."
+            actionLabel="Add first check-in"
+            href="/log"
+          />
+        )}
+
+        {/* Primary CTA */}
+        <CheckInCTA onPress={() => router.push('/log')} />
+
+        {/* Patient card */}
+        {profile && (
+          <PatientCard
+            profile={profile}
+            {...(lastCheckInLabel !== undefined ? { lastCheckInLabel } : {})}
+            onPress={() => router.push('/profile')}
+          />
+        )}
+
+        {/* Risk summary */}
+        <RiskSummary
+          risk={riskState}
+          onViewDetails={() => router.push('/history')}
         />
-      )}
-      {isReady && profile && logs.length === 0 && (
-        <OnboardingStepCard
-          stepLabel="Step 2"
-          title="Add the first check-in"
-          description="Record today's sleep, confusion, agitation, red flags and notes to unlock dashboard insights."
-          actionLabel="Add first check-in"
-          href="/log"
-        />
-      )}
 
-      {/* Primary CTA */}
-      <CheckInCTA onPress={() => router.push('/log')} />
+        {/* Baseline insights */}
+        <InsightsGrid insights={insightTiles} />
 
-      {/* Patient card */}
-      {profile && (
-        <PatientCard
-          profile={profile}
-          {...(lastCheckInLabel !== undefined ? { lastCheckInLabel } : {})}
-          onPress={() => router.push('/profile')}
-        />
-      )}
+        {/* 7-day trend */}
+        <DashboardTrendChart logs={logs} />
 
-      {/* Risk summary */}
-      <RiskSummary
-        risk={riskState}
-        onViewDetails={() => router.push('/history')}
-      />
+        {/* Quick actions */}
+        <QuickActions />
 
-      {/* Baseline insights */}
-      <InsightsGrid insights={insightTiles} />
-
-      {/* 7-day trend */}
-      <DashboardTrendChart logs={logs} />
-
-      {/* Quick actions */}
-      <QuickActions />
-
-      {/* Privacy footer */}
-      <PrivacyFooter style={styles.footer} />
-    </ScrollView>
+        {/* Privacy footer */}
+        <PrivacyFooter style={styles.footer} />
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+  },
   scroll: {
     flex: 1,
   },
   content: {
     paddingHorizontal: 20,
-    paddingBottom: 40,
+    paddingBottom: 88,
   },
   footer: {
     marginBottom: 8,

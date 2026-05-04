@@ -21,6 +21,7 @@ The app is intentionally positioned as personal tracking, structured observation
 - [Phase 3B - History and Entry Detail Polish](./phases/phase-3b-history-entry-polish.md)
 - [Phase 3C - Privacy and Local Data Controls](./phases/phase-3c-privacy-data-controls.md)
 - [Phase 6C - Structured Screening Foundation](./phases/phase-6c-structured-screening-foundation.md)
+- [Phase 6D - Dashboard Shell and Trend Polish](./phases/phase-6d-dashboard-shell-trend-polish.md)
 - [Roadmap](./roadmap.md)
 - [Interview Notes](./interview-notes.md)
 

@@ -73,8 +73,24 @@ export function Icon({ name, size = 24, color = 'currentColor' }: IconProps) {
 
     case 'people':
       return (
-        <Svg width={s} height={s} viewBox="0 0 24 24" fill={color}>
-          <Path d="M16 11a4 4 0 10-4-4 4 4 0 004 4zm-8 0a3 3 0 10-3-3 3 3 0 003 3zm0 2c-2.7 0-8 1.3-8 4v3h10v-3c0-1.1.4-2.2 1.1-3.1A14.4 14.4 0 008 13zm8 0a13 13 0 00-2.4.2A5 5 0 0116 16v4h8v-3c0-2.7-5.3-4-8-4z" />
+        <Svg width={s} height={s} viewBox="0 0 24 24" fill="none">
+          <Circle cx="12" cy="7.6" r="2.8" fill={color} />
+          <Path
+            d="M7.1 18.6c.45-3.25 2.35-5.2 4.9-5.2s4.45 1.95 4.9 5.2"
+            fill={color}
+          />
+          <Circle cx="5.9" cy="9.6" r="2.25" fill={color} opacity={0.92} />
+          <Path
+            d="M2.2 18.2c.35-2.7 1.95-4.3 4.15-4.3.85 0 1.6.25 2.25.7-1.25.95-2.1 2.35-2.45 4.1H2.8c-.35 0-.65-.25-.6-.5z"
+            fill={color}
+            opacity={0.92}
+          />
+          <Circle cx="18.1" cy="9.6" r="2.25" fill={color} opacity={0.92} />
+          <Path
+            d="M21.8 18.2c-.35-2.7-1.95-4.3-4.15-4.3-.85 0-1.6.25-2.25.7 1.25.95 2.1 2.35 2.45 4.1h3.35c.35 0 .65-.25.6-.5z"
+            fill={color}
+            opacity={0.92}
+          />
         </Svg>
       );
 
