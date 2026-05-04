@@ -11,6 +11,7 @@ import Svg, {
 export type IconName =
   | 'heart-leaf'
   | 'shield-check'
+  | 'shield-lock'
   | 'plus'
   | 'people'
   | 'moon'
@@ -23,7 +24,12 @@ export type IconName =
   | 'settings'
   | 'info'
   | 'chevron-right'
-  | 'shield';
+  | 'shield'
+  | 'home'
+  | 'clipboard'
+  | 'bell'
+  | 'checklist'
+  | 'more-horizontal';
 
 interface IconProps {
   name: IconName;
@@ -63,6 +69,16 @@ export function Icon({ name, size = 24, color = 'currentColor' }: IconProps) {
         </Svg>
       );
 
+    case 'shield-lock':
+      return (
+        <Svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={2.1} strokeLinecap="round" strokeLinejoin="round">
+          <Path d="M12 2 4 5v6c0 5 3.4 9.4 8 11 4.6-1.6 8-6 8-11V5l-8-3z" />
+          <Rect x="8" y="11" width="8" height="6" rx="1.4" fill={color} stroke="none" />
+          <Path d="M10 11V9.4a2 2 0 0 1 4 0V11" />
+          <Circle cx="12" cy="14" r="0.7" fill="#ffffff" stroke="none" />
+        </Svg>
+      );
+
     case 'plus':
       return (
         <Svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={2.5} strokeLinecap="round">
@@ -71,26 +87,64 @@ export function Icon({ name, size = 24, color = 'currentColor' }: IconProps) {
         </Svg>
       );
 
+    case 'home':
+      return (
+        <Svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={2.3} strokeLinecap="round" strokeLinejoin="round">
+          <Path d="M3 10.8 12 3l9 7.8" />
+          <Path d="M5.5 10.2V21h13V10.2" />
+          <Path d="M9.5 21v-6h5v6" />
+        </Svg>
+      );
+
+    case 'clipboard':
+      return (
+        <Svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={2.1} strokeLinecap="round" strokeLinejoin="round">
+          <Rect x="5" y="4" width="14" height="17" rx="2" />
+          <Path d="M9 4.5A3 3 0 0 1 12 2a3 3 0 0 1 3 2.5" />
+          <Path d="M9 9h6" />
+          <Path d="M9 13h6" />
+          <Path d="M9 17h4" />
+        </Svg>
+      );
+
+    case 'bell':
+      return (
+        <Svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={2.1} strokeLinecap="round" strokeLinejoin="round">
+          <Path d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9" />
+          <Path d="M10 21a2.5 2.5 0 0 0 4 0" />
+        </Svg>
+      );
+
+    case 'checklist':
+      return (
+        <Svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={2.1} strokeLinecap="round" strokeLinejoin="round">
+          <Path d="m5 7 1.5 1.5L9 5.5" />
+          <Path d="M12 7h7" />
+          <Path d="m5 13 1.5 1.5L9 11.5" />
+          <Path d="M12 13h7" />
+          <Path d="m5 19 1.5 1.5L9 17.5" />
+          <Path d="M12 19h7" />
+        </Svg>
+      );
+
+    case 'more-horizontal':
+      return (
+        <Svg width={s} height={s} viewBox="0 0 24 24" fill="none">
+          <Circle cx="5" cy="12" r="2" fill={color} />
+          <Circle cx="12" cy="12" r="2" fill={color} />
+          <Circle cx="19" cy="12" r="2" fill={color} />
+        </Svg>
+      );
+
     case 'people':
       return (
         <Svg width={s} height={s} viewBox="0 0 24 24" fill="none">
           <Circle cx="12" cy="7.6" r="2.8" fill={color} />
-          <Path
-            d="M7.1 18.6c.45-3.25 2.35-5.2 4.9-5.2s4.45 1.95 4.9 5.2"
-            fill={color}
-          />
+          <Path d="M7.1 18.6c.45-3.25 2.35-5.2 4.9-5.2s4.45 1.95 4.9 5.2" fill={color} />
           <Circle cx="5.9" cy="9.6" r="2.25" fill={color} opacity={0.92} />
-          <Path
-            d="M2.2 18.2c.35-2.7 1.95-4.3 4.15-4.3.85 0 1.6.25 2.25.7-1.25.95-2.1 2.35-2.45 4.1H2.8c-.35 0-.65-.25-.6-.5z"
-            fill={color}
-            opacity={0.92}
-          />
+          <Path d="M2.2 18.2c.35-2.7 1.95-4.3 4.15-4.3.85 0 1.6.25 2.25.7-1.25.95-2.1 2.35-2.45 4.1H2.8c-.35 0-.65-.25-.6-.5z" fill={color} opacity={0.92} />
           <Circle cx="18.1" cy="9.6" r="2.25" fill={color} opacity={0.92} />
-          <Path
-            d="M21.8 18.2c-.35-2.7-1.95-4.3-4.15-4.3-.85 0-1.6.25-2.25.7 1.25.95 2.1 2.35 2.45 4.1h3.35c.35 0 .65-.25.6-.5z"
-            fill={color}
-            opacity={0.92}
-          />
+          <Path d="M21.8 18.2c-.35-2.7-1.95-4.3-4.15-4.3-.85 0-1.6.25-2.25.7 1.25.95 2.1 2.35 2.45 4.1h3.35c.35 0 .65-.25.6-.5z" fill={color} opacity={0.92} />
         </Svg>
       );
 

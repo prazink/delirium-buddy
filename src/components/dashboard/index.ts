@@ -1,5 +1,7 @@
 export { AppHeader } from './AppHeader';
 export { CheckInCTA } from './CheckInCTA';
+export { DashboardBottomNav } from './DashboardBottomNav';
+export { DashboardReminderCard } from './DashboardReminderCard';
 export { DashboardTrendChart } from './DashboardTrendChart';
 export { InsightsGrid } from './InsightsGrid';
 export type { InsightTile, InsightVariant } from './InsightsGrid';

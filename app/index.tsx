@@ -1,12 +1,14 @@
 import { useFocusEffect } from '@react-navigation/native';
 import { router } from 'expo-router';
-import React, { useCallback, useMemo } from 'react';
-import { ScrollView, StyleSheet } from 'react-native';
+import React, { useCallback, useMemo, useState } from 'react';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import {
   AppHeader,
   CheckInCTA,
+  DashboardBottomNav,
+  DashboardReminderCard,
   DashboardTrendChart,
   InsightsGrid,
   PatientCard,
@@ -18,6 +20,7 @@ import { OnboardingStepCard } from '../src/components/OnboardingStepCard';
 import type { InsightTile } from '../src/components/dashboard/InsightsGrid';
 import { compareToBaseline } from '../src/domain/baseline/compareToBaseline';
 import { calculateRisk } from '../src/domain/risk/calculateRisk';
+import { loadUser } from '../src/storage/localUserRepository';
 import { useCheckInStore } from '../src/stores/checkInStore';
 import { usePatientStore } from '../src/stores/patientStore';
 import { useTheme } from '../src/theme/useTheme';
@@ -36,6 +39,7 @@ function formatTime(iso: string | undefined, todayStr: string): string | null {
 
 export default function Dashboard() {
   const { colors } = useTheme();
+  const [userName, setUserName] = useState<string | undefined>();
 
   // ─── State ────────────────────────────────────────────────────────────────
   const profile = usePatientStore((s) => s.profile);
@@ -49,6 +53,7 @@ export default function Dashboard() {
   // Reload on every screen focus so edits from other screens are reflected.
   useFocusEffect(
     useCallback(() => {
+      void loadUser().then((user) => setUserName(user?.name));
       void loadProfile();
       void loadLogs();
     }, [loadProfile, loadLogs]),
@@ -106,7 +111,7 @@ export default function Dashboard() {
         showsVerticalScrollIndicator={false}
       >
         {/* Header */}
-        <AppHeader />
+        <AppHeader userName={userName} />
 
         {/* Onboarding nudges */}
         {isReady && !profile && (
@@ -128,9 +133,6 @@ export default function Dashboard() {
           />
         )}
 
-        {/* Primary CTA */}
-        <CheckInCTA onPress={() => router.push('/log')} />
-
         {/* Patient card */}
         {profile && (
           <PatientCard
@@ -139,6 +141,9 @@ export default function Dashboard() {
             onPress={() => router.push('/profile')}
           />
         )}
+
+        {/* Primary CTA */}
+        <CheckInCTA onPress={() => router.push('/log')} />
 
         {/* Risk summary */}
         <RiskSummary
@@ -152,8 +157,12 @@ export default function Dashboard() {
         {/* 7-day trend */}
         <DashboardTrendChart logs={logs} />
 
-        {/* Quick actions */}
-        <QuickActions />
+        <View style={styles.dashboardGrid}>
+          <DashboardReminderCard />
+          <QuickActions />
+        </View>
+
+        <DashboardBottomNav />
 
         {/* Privacy footer */}
         <PrivacyFooter style={styles.footer} />
@@ -172,6 +181,10 @@ const styles = StyleSheet.create({
   content: {
     paddingHorizontal: 20,
     paddingBottom: 88,
+  },
+  dashboardGrid: {
+    flexDirection: 'row',
+    gap: 14,
   },
   footer: {
     marginBottom: 8,
