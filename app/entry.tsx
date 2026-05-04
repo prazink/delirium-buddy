@@ -9,6 +9,7 @@ import { buildCheckInShareText } from '../src/domain/export/buildCheckInShareTex
 import { getLogObservationLabels, type ObservationLabel } from '../src/domain/logs/getLogObservationLabels';
 import type { LogEntry, PersonProfile } from '../src/domain/logs/log.types';
 import { calculateRisk } from '../src/domain/risk/calculateRisk';
+import { scoreFourAt, type FourAtResult } from '../src/domain/screening/fourAt';
 import { loadLogs } from '../src/storage/localLogRepository';
 import { loadPersonProfile } from '../src/storage/localProfileRepository';
 
@@ -32,6 +33,7 @@ export default function EntryScreen() {
   const risk = useMemo(() => (item ? calculateRisk([item]) : null), [item]);
   const labels = useMemo(() => (item ? getLogObservationLabels(item) : []), [item]);
   const baselineInsights = useMemo(() => compareToBaseline(item ?? undefined, profile), [item, profile]);
+  const screeningResult = useMemo(() => (item?.fourAt ? scoreFourAt(item.fourAt) : null), [item]);
 
   async function shareCheckIn() {
     if (!item) {
@@ -66,6 +68,7 @@ export default function EntryScreen() {
         <Text style={styles.shareButtonText}>Share this check-in</Text>
       </TouchableOpacity>
       {risk ? <RiskCard risk={risk} /> : null}
+      {screeningResult ? <ScreeningResultCard result={screeningResult} /> : null}
       <BaselineInsightsCard insights={baselineInsights} hasProfile={Boolean(profile)} hasLogs />
 
       <View style={styles.card}>
@@ -116,6 +119,47 @@ function Metric({ label, value }: MetricProps) {
   );
 }
 
+type ScreeningResultCardProps = {
+  result: FourAtResult;
+};
+
+function ScreeningResultCard({ result }: ScreeningResultCardProps) {
+  const toneStyle = result.isPositiveScreen ? styles.screeningAlert : styles.screeningNeutral;
+  const scoreToneStyle = result.isPositiveScreen ? styles.screeningScoreAlert : styles.screeningScoreNeutral;
+
+  return (
+    <View style={[styles.card, styles.screeningCard]}>
+      <View style={styles.screeningHeader}>
+        <View style={styles.screeningHeaderCopy}>
+          <Text style={styles.cardTitle}>Structured screening</Text>
+          <Text style={styles.screeningSubTitle}>Recorded with this check-in</Text>
+        </View>
+        <View style={[styles.screeningScorePill, scoreToneStyle]}>
+          <Text style={styles.screeningScoreLabel}>Score</Text>
+          <Text style={styles.screeningScoreValue}>{result.totalScore}</Text>
+        </View>
+      </View>
+
+      <View style={[styles.screeningStatusBox, toneStyle]}>
+        <Text style={styles.screeningStatus}>{result.statusLabel}</Text>
+        <Text style={styles.screeningSummary}>{result.summary}</Text>
+      </View>
+
+      {result.flags.length > 0 ? (
+        <View style={styles.screeningFlags}>
+          {result.flags.map((flag) => (
+            <Text key={flag} style={styles.screeningFlag}>{flag}</Text>
+          ))}
+        </View>
+      ) : (
+        <Text style={styles.muted}>No structured screening flags were recorded.</Text>
+      )}
+
+      <Text style={styles.screeningSafety}>{result.safetyNote}</Text>
+    </View>
+  );
+}
+
 type ObservationChipProps = {
   label: ObservationLabel;
 };
@@ -150,6 +194,34 @@ const styles = StyleSheet.create({
   metric: { flex: 1, backgroundColor: '#f8fafc', borderRadius: 12, padding: 10 },
   metricValue: { fontSize: 16, fontWeight: '800', marginBottom: 2 },
   metricLabel: { color: '#64748b', fontSize: 11, fontWeight: '600' },
+  screeningCard: { gap: 12 },
+  screeningHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12 },
+  screeningHeaderCopy: { flex: 1 },
+  screeningSubTitle: { color: '#64748b', fontWeight: '600' },
+  screeningScorePill: { alignItems: 'center', borderRadius: 14, minWidth: 72, paddingHorizontal: 12, paddingVertical: 8 },
+  screeningScoreNeutral: { backgroundColor: '#eef2ff' },
+  screeningScoreAlert: { backgroundColor: '#fef2f2' },
+  screeningScoreLabel: { color: '#64748b', fontSize: 11, fontWeight: '800', textTransform: 'uppercase' },
+  screeningScoreValue: { color: '#111827', fontSize: 22, fontWeight: '900' },
+  screeningStatusBox: { borderRadius: 14, padding: 12 },
+  screeningNeutral: { backgroundColor: '#f8fafc' },
+  screeningAlert: { backgroundColor: '#fff7ed' },
+  screeningStatus: { color: '#111827', fontSize: 16, fontWeight: '800', marginBottom: 4 },
+  screeningSummary: { color: '#475569', lineHeight: 20 },
+  screeningFlags: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
+  screeningFlag: {
+    backgroundColor: '#f8fafc',
+    borderColor: '#e2e8f0',
+    borderRadius: 999,
+    borderWidth: 1,
+    color: '#334155',
+    fontSize: 12,
+    fontWeight: '700',
+    overflow: 'hidden',
+    paddingHorizontal: 9,
+    paddingVertical: 5,
+  },
+  screeningSafety: { color: '#64748b', fontSize: 12, lineHeight: 18 },
   chipWrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
   chip: { borderRadius: 999, borderWidth: 1, fontSize: 12, fontWeight: '700', overflow: 'hidden', paddingHorizontal: 9, paddingVertical: 5 },
   neutral: { backgroundColor: '#f8fafc', borderColor: '#e2e8f0', color: '#475569' },
