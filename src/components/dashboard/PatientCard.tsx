@@ -55,6 +55,7 @@ export function PatientCard({
           source={profile.avatarUri ?? null}
           size={64}
           fallback={initials}
+          gender={profile.gender ?? 'not_specified'}
         />
 
         <View style={styles.body}>
