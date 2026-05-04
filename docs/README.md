@@ -23,6 +23,7 @@ The app is intentionally positioned as personal tracking, structured observation
 - [Phase 6C - Structured Screening Foundation](./phases/phase-6c-structured-screening-foundation.md)
 - [Phase 6D - Dashboard Shell and Trend Polish](./phases/phase-6d-dashboard-shell-trend-polish.md)
 - [Phase 6E - Entry Screening Result Card](./phases/phase-6e-entry-screening-result-card.md)
+- [Phase 6F - Carer Role, Relationship and Typography Polish](./phases/phase-6f-carer-role-relationship-typography.md)
 - [Roadmap](./roadmap.md)
 - [Interview Notes](./interview-notes.md)
 
