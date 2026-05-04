@@ -4,9 +4,15 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, Alert, ScrollView, StyleSheet, Switch, Text, TextInput, TextInputProps, TouchableOpacity, View } from 'react-native';
 
 import { Avatar } from '../src/components/ui/Avatar';
-import type { PersonProfile } from '../src/domain/logs/log.types';
+import type { PersonGender, PersonProfile } from '../src/domain/logs/log.types';
 import { loadPersonProfile, savePersonProfile } from '../src/storage/localProfileRepository';
 import { toFiniteNumber } from '../src/utils/numbers';
+
+const GENDER_OPTIONS: Array<{ label: string; value: PersonGender }> = [
+  { label: 'Male', value: 'male' },
+  { label: 'Female', value: 'female' },
+  { label: 'Not specified', value: 'not_specified' },
+];
 
 export default function ProfileScreen() {
   const [loading, setLoading] = useState(true);
@@ -15,6 +21,7 @@ export default function ProfileScreen() {
   const [careRole, setCareRole] = useState('Primary carer');
   const [relationship, setRelationship] = useState('');
   const [avatarUri, setAvatarUri] = useState<string | null>(null);
+  const [gender, setGender] = useState<PersonGender>('not_specified');
   const [ageRange, setAgeRange] = useState('');
   const [normalMobility, setNormalMobility] = useState('');
   const [normalSleepMin, setNormalSleepMin] = useState('5');
@@ -45,6 +52,7 @@ export default function ProfileScreen() {
         setCareRole(profile.careRole ?? 'Primary carer');
         setRelationship(profile.relationship);
         setAvatarUri(profile.avatarUri ?? null);
+        setGender(profile.gender ?? 'not_specified');
         setAgeRange(profile.ageRange ?? '');
         setNormalMobility(profile.normalMobility ?? '');
         setNormalSleepMin(String(profile.normalSleepMin ?? 5));
@@ -110,6 +118,7 @@ export default function ProfileScreen() {
         relationship: trimmedRelationship,
         careRole: trimmedCareRole || 'Primary carer',
         avatarUri: avatarUri ?? undefined,
+        gender,
         ageRange: ageRange.trim() || undefined,
         normalMobility: normalMobility.trim() || undefined,
         normalSleepMin: toFiniteNumber(normalSleepMin, 5),
@@ -147,10 +156,10 @@ export default function ProfileScreen() {
       </Text>
 
       <View style={styles.avatarCard}>
-        <Avatar source={avatarUri} size={82} fallback={avatarFallback} />
+        <Avatar source={avatarUri} size={82} fallback={avatarFallback} gender={gender} />
         <View style={styles.avatarCopy}>
           <Text style={styles.avatarTitle}>Profile photo</Text>
-          <Text style={styles.avatarHelp}>Optional. Stored locally on this device only.</Text>
+          <Text style={styles.avatarHelp}>Optional. Stored locally on this device only. If no photo is selected, the app uses a default avatar.</Text>
           <View style={styles.avatarActions}>
             <TouchableOpacity style={styles.avatarButton} onPress={chooseAvatarPhoto} disabled={saving} activeOpacity={0.8}>
               <Text style={styles.avatarButtonText}>{avatarUri ? 'Change photo' : 'Choose photo'}</Text>
@@ -167,6 +176,28 @@ export default function ProfileScreen() {
       <Field label="Person name or nickname" value={displayName} onChangeText={setDisplayName} editable={!saving} />
       <Field label="Your care role" value={careRole} onChangeText={setCareRole} placeholder="e.g. Primary carer, Nurse, Support worker" editable={!saving} />
       <Field label="Your relationship" value={relationship} onChangeText={setRelationship} placeholder="e.g. Godson, Daughter, Spouse, Nurse" editable={!saving} />
+
+      <View style={styles.fieldWrap}>
+        <Text style={styles.label}>Default avatar</Text>
+        <View style={styles.segmentedControl}>
+          {GENDER_OPTIONS.map((option) => {
+            const selected = gender === option.value;
+            return (
+              <TouchableOpacity
+                key={option.value}
+                style={[styles.segmentButton, selected && styles.segmentButtonSelected]}
+                onPress={() => setGender(option.value)}
+                disabled={saving}
+                accessibilityRole="button"
+                accessibilityState={{ selected, disabled: saving }}
+              >
+                <Text style={[styles.segmentText, selected && styles.segmentTextSelected]}>{option.label}</Text>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
+      </View>
+
       <Field label="Age range" value={ageRange} onChangeText={setAgeRange} placeholder="e.g. 70s" editable={!saving} />
       <Field label="Normal sleep min hours" value={normalSleepMin} onChangeText={setNormalSleepMin} keyboardType="number-pad" editable={!saving} />
       <Field label="Normal sleep max hours" value={normalSleepMax} onChangeText={setNormalSleepMax} keyboardType="number-pad" editable={!saving} />
@@ -241,6 +272,11 @@ const styles = StyleSheet.create({
   fieldWrap: { marginBottom: 12 },
   label: { fontWeight: '600', marginBottom: 4 },
   input: { backgroundColor: '#fff', borderRadius: 12, borderWidth: 1, borderColor: '#e5e7eb', padding: 12 },
+  segmentedControl: { backgroundColor: '#fff', borderRadius: 12, borderWidth: 1, borderColor: '#e5e7eb', flexDirection: 'row', padding: 4 },
+  segmentButton: { alignItems: 'center', borderRadius: 9, flex: 1, paddingHorizontal: 8, paddingVertical: 9 },
+  segmentButtonSelected: { backgroundColor: '#111827' },
+  segmentText: { color: '#475569', fontSize: 13, fontWeight: '700', textAlign: 'center' },
+  segmentTextSelected: { color: '#fff' },
   switchRow: { backgroundColor: '#fff', borderRadius: 12, borderWidth: 1, borderColor: '#e5e7eb', padding: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 },
   switchLabel: { fontWeight: '600' },
   saveBtn: { backgroundColor: '#111827', paddingVertical: 14, alignItems: 'center', borderRadius: 12, marginTop: 6, marginBottom: 24 },
