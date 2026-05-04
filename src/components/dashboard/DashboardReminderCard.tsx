@@ -1,4 +1,5 @@
-import { useFocusEffect, useRouter } from 'expo-router';
+import { useFocusEffect } from '@react-navigation/native';
+import { useRouter } from 'expo-router';
 import React, { useCallback, useState } from 'react';
 import { Pressable, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 
@@ -39,7 +40,7 @@ export function DashboardReminderCard({ style }: DashboardReminderCardProps) {
         </View>
         <View style={styles.copy}>
           <AppText variant="bodyMd" color="#486385">
-            {enabled ? 'Your daily reminder is set for' : 'No daily reminder is set yet'}
+            {enabled ? 'Your daily reminder is set for' : 'Reminder is off'}
           </AppText>
           <AppText variant="h1" color={palette.navy900} style={styles.time}>
             {enabled ? timeLabel : 'Off'}
@@ -49,7 +50,7 @@ export function DashboardReminderCard({ style }: DashboardReminderCardProps) {
 
       <Pressable
         accessibilityRole="button"
-        accessibilityLabel="Edit daily reminder"
+        accessibilityLabel="Edit reminder"
         onPress={() => router.push('/settings')}
         style={({ pressed }) => [styles.button, pressed && styles.pressed]}
       >
