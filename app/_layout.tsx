@@ -25,7 +25,7 @@ export default function Root() {
       <ThemeProvider>
         <StatusBar style="auto" />
         <Stack screenOptions={{ headerTitle: 'Delirium Buddy' }}>
-          <Stack.Screen name="index" options={{ title: 'Dashboard' }} />
+          <Stack.Screen name="index" options={{ headerShown: false }} />
           <Stack.Screen name="profile" options={{ title: 'Person Profile' }} />
           <Stack.Screen name="summary" options={{ title: '7-day Summary' }} />
           <Stack.Screen name="settings" options={{ title: 'Settings' }} />
