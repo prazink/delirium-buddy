@@ -20,6 +20,10 @@ function makeLog(overrides: Partial<LogEntry> = {}): LogEntry {
     log.feverOrInfection = overrides.feverOrInfection;
   }
 
+  if (overrides.fourAt !== undefined) {
+    log.fourAt = overrides.fourAt;
+  }
+
   if (overrides.notes !== undefined) {
     log.notes = overrides.notes;
   }
@@ -58,6 +62,26 @@ describe('calculateRisk', () => {
     expect(result.reasons).toContain('High confusion today');
     expect(result.reasons).toContain('Very low sleep');
     expect(result.reasons).toContain('Fever or infection present');
+  });
+
+  it('adds structured screening reasons when optional screening data is present', () => {
+    const result = calculateRisk([
+      makeLog({
+        agitation: 5,
+        confusion: 5,
+        sleepHours: 5,
+        fourAt: {
+          arousal: 0,
+          amt4: 0,
+          attention: 0,
+          acuteChange: 4,
+        },
+      }),
+    ]);
+
+    expect(result.level).toBe('High');
+    expect(result.reasons).toContain('Structured screen score recorded: 4');
+    expect(result.reasons).toContain('Structured screen flag recorded');
   });
 
   it('adds a trend reason when agitation and confusion increase over recent logs', () => {
