@@ -40,7 +40,15 @@ export function Card({ children, onPress, style, accessibilityLabel }: CardProps
     );
   }
 
-  return <View style={cardStyle}>{children}</View>;
+  return (
+    <View
+      style={cardStyle}
+      accessible={Boolean(accessibilityLabel)}
+      accessibilityLabel={accessibilityLabel}
+    >
+      {children}
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({
