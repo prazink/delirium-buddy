@@ -1,10 +1,18 @@
+import * as ImagePicker from 'expo-image-picker';
 import { router } from 'expo-router';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, Alert, ScrollView, StyleSheet, Switch, Text, TextInput, TextInputProps, TouchableOpacity, View } from 'react-native';
 
-import type { PersonProfile } from '../src/domain/logs/log.types';
+import { Avatar } from '../src/components/ui/Avatar';
+import type { PersonGender, PersonProfile } from '../src/domain/logs/log.types';
 import { loadPersonProfile, savePersonProfile } from '../src/storage/localProfileRepository';
 import { toFiniteNumber } from '../src/utils/numbers';
+
+const GENDER_OPTIONS: Array<{ label: string; value: PersonGender }> = [
+  { label: 'Male', value: 'male' },
+  { label: 'Female', value: 'female' },
+  { label: 'Not specified', value: 'not_specified' },
+];
 
 export default function ProfileScreen() {
   const [loading, setLoading] = useState(true);
@@ -12,6 +20,8 @@ export default function ProfileScreen() {
   const [displayName, setDisplayName] = useState('');
   const [careRole, setCareRole] = useState('Primary carer');
   const [relationship, setRelationship] = useState('');
+  const [avatarUri, setAvatarUri] = useState<string | null>(null);
+  const [gender, setGender] = useState<PersonGender>('not_specified');
   const [ageRange, setAgeRange] = useState('');
   const [normalMobility, setNormalMobility] = useState('');
   const [normalSleepMin, setNormalSleepMin] = useState('5');
@@ -21,6 +31,18 @@ export default function ProfileScreen() {
   const [recentSurgery, setRecentSurgery] = useState(false);
   const [recentInfection, setRecentInfection] = useState(false);
 
+  const avatarFallback = useMemo(() => {
+    const initials = displayName
+      .trim()
+      .split(' ')
+      .filter(Boolean)
+      .map((word) => word[0] ?? '')
+      .join('')
+      .slice(0, 2);
+
+    return initials || '?';
+  }, [displayName]);
+
   useEffect(() => {
     async function hydrateProfile() {
       const profile = await loadPersonProfile();
@@ -29,6 +51,8 @@ export default function ProfileScreen() {
         setDisplayName(profile.displayName);
         setCareRole(profile.careRole ?? 'Primary carer');
         setRelationship(profile.relationship);
+        setAvatarUri(profile.avatarUri ?? null);
+        setGender(profile.gender ?? 'not_specified');
         setAgeRange(profile.ageRange ?? '');
         setNormalMobility(profile.normalMobility ?? '');
         setNormalSleepMin(String(profile.normalSleepMin ?? 5));
@@ -44,6 +68,36 @@ export default function ProfileScreen() {
 
     hydrateProfile();
   }, []);
+
+  async function chooseAvatarPhoto() {
+    const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+    if (!permission.granted) {
+      Alert.alert(
+        'Photo access needed',
+        'Please allow photo library access to choose a profile photo. The photo stays on this device.',
+      );
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.72,
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+    });
+
+    if (!result.canceled) {
+      const pickedUri = result.assets[0]?.uri;
+      if (pickedUri) {
+        setAvatarUri(pickedUri);
+      }
+    }
+  }
+
+  function removeAvatarPhoto() {
+    setAvatarUri(null);
+  }
 
   async function saveProfile() {
     const trimmedName = displayName.trim();
@@ -63,6 +117,8 @@ export default function ProfileScreen() {
         displayName: trimmedName,
         relationship: trimmedRelationship,
         careRole: trimmedCareRole || 'Primary carer',
+        avatarUri: avatarUri ?? undefined,
+        gender,
         ageRange: ageRange.trim() || undefined,
         normalMobility: normalMobility.trim() || undefined,
         normalSleepMin: toFiniteNumber(normalSleepMin, 5),
@@ -99,9 +155,49 @@ export default function ProfileScreen() {
         Add what is normal for this person. This app supports personal tracking and care conversations only. It does not diagnose delirium.
       </Text>
 
+      <View style={styles.avatarCard}>
+        <Avatar source={avatarUri} size={82} fallback={avatarFallback} gender={gender} />
+        <View style={styles.avatarCopy}>
+          <Text style={styles.avatarTitle}>Profile photo</Text>
+          <Text style={styles.avatarHelp}>Optional. Stored locally on this device only. If no photo is selected, the app uses a default avatar.</Text>
+          <View style={styles.avatarActions}>
+            <TouchableOpacity style={styles.avatarButton} onPress={chooseAvatarPhoto} disabled={saving} activeOpacity={0.8}>
+              <Text style={styles.avatarButtonText}>{avatarUri ? 'Change photo' : 'Choose photo'}</Text>
+            </TouchableOpacity>
+            {avatarUri ? (
+              <TouchableOpacity style={styles.removeButton} onPress={removeAvatarPhoto} disabled={saving} activeOpacity={0.8}>
+                <Text style={styles.removeButtonText}>Remove</Text>
+              </TouchableOpacity>
+            ) : null}
+          </View>
+        </View>
+      </View>
+
       <Field label="Person name or nickname" value={displayName} onChangeText={setDisplayName} editable={!saving} />
       <Field label="Your care role" value={careRole} onChangeText={setCareRole} placeholder="e.g. Primary carer, Nurse, Support worker" editable={!saving} />
       <Field label="Your relationship" value={relationship} onChangeText={setRelationship} placeholder="e.g. Godson, Daughter, Spouse, Nurse" editable={!saving} />
+
+      <View style={styles.fieldWrap}>
+        <Text style={styles.label}>Default avatar</Text>
+        <View style={styles.segmentedControl}>
+          {GENDER_OPTIONS.map((option) => {
+            const selected = gender === option.value;
+            return (
+              <TouchableOpacity
+                key={option.value}
+                style={[styles.segmentButton, selected && styles.segmentButtonSelected]}
+                onPress={() => setGender(option.value)}
+                disabled={saving}
+                accessibilityRole="button"
+                accessibilityState={{ selected, disabled: saving }}
+              >
+                <Text style={[styles.segmentText, selected && styles.segmentTextSelected]}>{option.label}</Text>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
+      </View>
+
       <Field label="Age range" value={ageRange} onChangeText={setAgeRange} placeholder="e.g. 70s" editable={!saving} />
       <Field label="Normal sleep min hours" value={normalSleepMin} onChangeText={setNormalSleepMin} keyboardType="number-pad" editable={!saving} />
       <Field label="Normal sleep max hours" value={normalSleepMax} onChangeText={setNormalSleepMax} keyboardType="number-pad" editable={!saving} />
@@ -154,9 +250,33 @@ const styles = StyleSheet.create({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   title: { fontSize: 24, fontWeight: '700', marginBottom: 8 },
   helpText: { color: '#475569', marginBottom: 16, lineHeight: 20 },
+  avatarCard: {
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    borderColor: '#e5e7eb',
+    borderRadius: 16,
+    borderWidth: 1,
+    flexDirection: 'row',
+    gap: 14,
+    marginBottom: 16,
+    padding: 14,
+  },
+  avatarCopy: { flex: 1, minWidth: 0 },
+  avatarTitle: { color: '#111827', fontSize: 16, fontWeight: '700', marginBottom: 2 },
+  avatarHelp: { color: '#64748b', fontSize: 13, lineHeight: 18, marginBottom: 10 },
+  avatarActions: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  avatarButton: { backgroundColor: '#111827', borderRadius: 999, paddingHorizontal: 13, paddingVertical: 8 },
+  avatarButtonText: { color: '#fff', fontSize: 13, fontWeight: '700' },
+  removeButton: { backgroundColor: '#f8fafc', borderColor: '#e5e7eb', borderRadius: 999, borderWidth: 1, paddingHorizontal: 13, paddingVertical: 8 },
+  removeButtonText: { color: '#475569', fontSize: 13, fontWeight: '700' },
   fieldWrap: { marginBottom: 12 },
   label: { fontWeight: '600', marginBottom: 4 },
   input: { backgroundColor: '#fff', borderRadius: 12, borderWidth: 1, borderColor: '#e5e7eb', padding: 12 },
+  segmentedControl: { backgroundColor: '#fff', borderRadius: 12, borderWidth: 1, borderColor: '#e5e7eb', flexDirection: 'row', padding: 4 },
+  segmentButton: { alignItems: 'center', borderRadius: 9, flex: 1, paddingHorizontal: 8, paddingVertical: 9 },
+  segmentButtonSelected: { backgroundColor: '#111827' },
+  segmentText: { color: '#475569', fontSize: 13, fontWeight: '700', textAlign: 'center' },
+  segmentTextSelected: { color: '#fff' },
   switchRow: { backgroundColor: '#fff', borderRadius: 12, borderWidth: 1, borderColor: '#e5e7eb', padding: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 },
   switchLabel: { fontWeight: '600' },
   saveBtn: { backgroundColor: '#111827', paddingVertical: 14, alignItems: 'center', borderRadius: 12, marginTop: 6, marginBottom: 24 },

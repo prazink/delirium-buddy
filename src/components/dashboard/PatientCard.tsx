@@ -52,9 +52,10 @@ export function PatientCard({
     <Card {...(onPress ? { onPress } : {})} style={style} accessibilityLabel={`Patient: ${profile.displayName}`}>
       <View style={styles.row}>
         <Avatar
-          source={null}
+          source={profile.avatarUri ?? null}
           size={64}
           fallback={initials}
+          gender={profile.gender ?? 'not_specified'}
         />
 
         <View style={styles.body}>
