@@ -16,12 +16,20 @@ const config: ExpoConfig = {
       NSPrivacyAccessedAPITypes: [],
     },
   },
+  android: {
+    package: 'com.pk.deliriumbuddy',
+  },
   splash: {
     image: './assets/splash.png',
     resizeMode: 'cover',
     backgroundColor: '#ffffff',
   },
   plugins: ['expo-router'],
+  extra: {
+    eas: {
+      projectId: '7bd43f13-eeee-42e8-b072-26b688fb20fd',
+    },
+  },
 };
 
 export default config;
