@@ -24,14 +24,18 @@ export default function Root() {
     <ErrorBoundary>
       <ThemeProvider>
         <StatusBar style="auto" />
-        <Stack screenOptions={{ headerTitle: 'Delirium Buddy' }}>
+        <Stack
+          screenOptions={{
+            headerBackTitle: 'Back',
+          }}
+        >
           <Stack.Screen name="index" options={{ headerShown: false }} />
           <Stack.Screen name="profile" options={{ title: 'Person Profile' }} />
           <Stack.Screen name="summary" options={{ title: '7-day Summary' }} />
           <Stack.Screen name="settings" options={{ title: 'Settings' }} />
-          <Stack.Screen name="log" options={{ title: 'New Log' }} />
+          <Stack.Screen name="log" options={{ title: 'New Entry' }} />
           <Stack.Screen name="history" options={{ title: 'History' }} />
-          <Stack.Screen name="entry" options={{ title: 'Entry' }} />
+          <Stack.Screen name="entry" options={{ title: 'Entry Detail' }} />
           <Stack.Screen name="about" options={{ title: 'About' }} />
           <Stack.Screen name="login" options={{ title: 'Login', headerShown: false }} />
         </Stack>
