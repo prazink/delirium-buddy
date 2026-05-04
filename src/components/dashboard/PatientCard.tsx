@@ -6,7 +6,6 @@ import { useTheme } from '../../theme/useTheme';
 import { AppText } from '../ui/AppText';
 import { Avatar } from '../ui/Avatar';
 import { Card } from '../ui/Card';
-import { Chip } from '../ui/Chip';
 import { Icon } from '../ui/Icon';
 
 interface PatientCardProps {
@@ -24,7 +23,7 @@ function formatAge(raw?: string): string | null {
 }
 
 /**
- * Displays the current patient profile with avatar, name, meta, and carer chip.
+ * Displays the current patient profile with avatar, name, meta, care role and relationship.
  * @example <PatientCard profile={profile} lastCheckInLabel="Today, 9:20 am" onPress={...} />
  */
 export function PatientCard({
@@ -46,6 +45,9 @@ export function PatientCard({
     .join('')
     .slice(0, 2);
 
+  const roleLabel = profile.careRole?.trim() || 'Primary carer';
+  const relationshipLabel = profile.relationship?.trim() || 'Not specified';
+
   return (
     <Card {...(onPress ? { onPress } : {})} style={style} accessibilityLabel={`Patient: ${profile.displayName}`}>
       <View style={styles.row}>
@@ -64,11 +66,22 @@ export function PatientCard({
               {metaParts.join('  ·  ')}
             </AppText>
           )}
-          <Chip
-            icon={<Icon name="people" size={14} color={colors.chipIcon} />}
-            label={`You're the ${profile.relationship ?? 'primary carer'}`}
-            style={styles.chip}
-          />
+
+          <View style={[styles.detailPanel, { backgroundColor: colors.chipBg }]}>
+            <View style={styles.detailIcon}>
+              <Icon name="people" size={16} color={colors.chipIcon} />
+            </View>
+            <View style={styles.detailCopy}>
+              <AppText variant="label" color={colors.textPrimary} style={styles.detailLine}>
+                <AppText variant="label" color={colors.textSecondary} style={styles.detailLabel}>Role: </AppText>
+                {roleLabel}
+              </AppText>
+              <AppText variant="label" color={colors.textPrimary} style={styles.detailLine}>
+                <AppText variant="label" color={colors.textSecondary} style={styles.detailLabel}>Relationship: </AppText>
+                {relationshipLabel}
+              </AppText>
+            </View>
+          </View>
         </View>
 
         <View accessibilityElementsHidden>
@@ -90,12 +103,34 @@ const styles = StyleSheet.create({
     minWidth: 0,
   },
   name: {
+    fontSize: 19,
+    fontWeight: '700',
+    lineHeight: 23,
     marginBottom: 2,
   },
   meta: {
-    marginBottom: 8,
+    fontSize: 14,
+    lineHeight: 19,
+    marginBottom: 9,
   },
-  chip: {
-    marginTop: 0,
+  detailPanel: {
+    alignSelf: 'flex-start',
+    borderRadius: 18,
+    flexDirection: 'row',
+    gap: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+  },
+  detailIcon: {
+    paddingTop: 1,
+  },
+  detailCopy: {
+    gap: 2,
+  },
+  detailLine: {
+    fontWeight: '600',
+  },
+  detailLabel: {
+    fontWeight: '500',
   },
 });
