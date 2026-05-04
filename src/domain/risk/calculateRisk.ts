@@ -1,4 +1,5 @@
 import type { LogEntry } from '../logs/log.types';
+import { scoreFourAt } from '../screening/fourAt';
 import { clamp } from '../../utils/numbers';
 
 export type RiskLevel = 'No data' | 'Low' | 'Moderate' | 'High';
@@ -47,6 +48,20 @@ export function calculateRisk(logs: LogEntry[]): RiskState {
   }
 
   const reasons = buildReasons(last);
+
+  if (last.fourAt) {
+    const screenResult = scoreFourAt(last.fourAt);
+
+    if (screenResult.totalScore > 0) {
+      reasons.push(`Structured screen score recorded: ${screenResult.totalScore}`);
+    }
+
+    if (screenResult.isPositiveScreen) {
+      score += 20;
+      reasons.push('Structured screen flag recorded');
+    }
+  }
+
   const recentLogs = logs.slice(-4);
 
   if (hasUpwardTrend(recentLogs)) {
