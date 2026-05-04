@@ -2,31 +2,37 @@
 
 ## 1. Problem being solved
 
-The dashboard person card had a fallback initials avatar, but there was no way to choose a real photo for the person being tracked.
+The dashboard person card had a fallback initials avatar, but there was no way to choose a real photo or a more human default avatar for the person being tracked.
 
 This made the app feel less personal and less realistic for carer use.
 
-This phase adds optional local photo support while keeping the privacy promise clear:
+This phase adds optional local photo support and gender-based default avatars while keeping the privacy promise clear:
 
 ```txt
 photo chosen locally
   -> local URI saved in profile
   -> dashboard shows photo
-  -> fallback initials remain if no photo is selected
+  -> if no photo, gender-based default avatar is shown
 ```
 
 ## 2. Scope included
 
 - Add `expo-image-picker` dependency.
 - Add optional `avatarUri` to `PersonProfile`.
-- Add validation for optional `avatarUri`.
+- Add optional `gender` to `PersonProfile`.
+- Add validation for optional `avatarUri` and `gender`.
 - Add Profile screen photo controls:
   - Choose photo
   - Change photo
   - Remove photo
+- Add Profile screen default avatar selector:
+  - Male
+  - Female
+  - Not specified
 - Show a local-only privacy note near the photo controls.
 - Render selected photo on the dashboard person card.
-- Keep initials fallback if no photo is selected or image loading fails.
+- Show a gender-based default avatar if no photo is selected.
+- Keep safe fallback behaviour if image loading fails.
 
 ## 3. Scope intentionally excluded
 
@@ -40,8 +46,9 @@ This phase does not add:
 - multiple avatars
 - carer avatar
 - staff avatar
+- clinical gender/sex logic
 
-Those are later product decisions.
+The gender field is only used to choose a friendly default avatar illustration.
 
 ## 4. Technical changes
 
@@ -57,6 +64,7 @@ npx expo install expo-image-picker
 
 ```ts
 avatarUri?: string | undefined;
+gender?: PersonGender | undefined;
 ```
 
 ### Profile form
@@ -65,15 +73,20 @@ avatarUri?: string | undefined;
 
 The selected local URI is saved with the rest of the local profile.
 
+The form also includes a default avatar selector. If no uploaded photo is saved, the shared `Avatar` component shows a male, female or neutral default avatar based on the selected option.
+
 ### Dashboard person card
 
-`PatientCard` now passes `profile.avatarUri` into the shared `Avatar` component:
+`PatientCard` now passes `profile.avatarUri` and `profile.gender` into the shared `Avatar` component:
 
 ```tsx
-<Avatar source={profile.avatarUri ?? null} size={64} fallback={initials} />
+<Avatar
+  source={profile.avatarUri ?? null}
+  size={64}
+  fallback={initials}
+  gender={profile.gender ?? 'not_specified'}
+/>
 ```
-
-The existing `Avatar` component already supports image rendering and fallback initials.
 
 ## 5. Product value
 
@@ -81,6 +94,7 @@ This makes the app feel more human and easier to scan:
 
 - carers can visually recognise who they are tracking
 - the dashboard feels more personal
+- users can still choose a friendly default avatar without uploading a photo
 - the profile setup feels more complete
 - the app better matches a polished mobile product experience
 
@@ -90,7 +104,8 @@ This makes the app feel more human and easier to scan:
 - The photo URI is stored locally in the profile object.
 - The app does not upload the photo anywhere.
 - The UI states that the photo stays on this device.
-- Removing the photo clears the saved URI and returns to initials fallback.
+- Removing the photo clears the saved URI and returns to the selected default avatar.
+- The gender selector is only used for avatar fallback display.
 
 ## 7. Manual QA checklist
 
@@ -103,17 +118,19 @@ npm install
 
 - Open Person Profile.
 - Confirm Profile photo section appears.
+- Confirm Default avatar selector appears.
+- Select Male, Female and Not specified and confirm the preview changes.
 - Tap Choose photo.
 - Grant photo permission.
 - Pick a photo.
-- Confirm avatar preview updates.
+- Confirm avatar preview updates to selected photo.
 - Save profile.
 - Return to dashboard.
 - Confirm person card shows selected photo.
 - Open Person Profile again.
 - Tap Remove.
 - Save profile.
-- Confirm dashboard returns to initials fallback.
+- Confirm dashboard returns to selected default avatar.
 - Run:
 
 ```bash
@@ -126,8 +143,8 @@ npm run test
 
 Use this explanation:
 
-> I added optional local avatar photo support to make the carer profile feel more personal without compromising privacy. The app requests photo library access only when the user chooses a photo, stores only the local URI in the profile, and keeps a clean initials fallback when no image exists or the image fails to load.
+> I added optional local avatar photo support to make the carer profile feel more personal without compromising privacy. The app requests photo library access only when the user chooses a photo, stores only the local URI in the profile, and uses a gender-based default avatar when no photo is selected.
 
 Strong technical angle:
 
-> The avatar rendering was already isolated in a reusable Avatar component, so the change was mainly data-model and profile-form wiring. The dashboard card simply passes through `profile.avatarUri`, which keeps the UI components clean and reusable.
+> The avatar rendering was already isolated in a reusable Avatar component, so the change was mainly data-model and profile-form wiring. The dashboard card simply passes through `profile.avatarUri` and `profile.gender`, which keeps the UI components clean and reusable.
