@@ -6,9 +6,9 @@ The goal is to keep a clear record of what was built in each phase, why each dec
 
 ## Current product direction
 
-Delirium Buddy is a local-first Expo / React Native app for personal delirium-related change tracking, carer observations, and shareable care conversation summaries.
+Delirium Buddy is a local-first Expo / React Native app for personal delirium-related change tracking, carer observations, structured screening support, and shareable care conversation summaries.
 
-The app is intentionally positioned as personal tracking and care conversation support only. It does not diagnose, predict, treat, prevent, or replace medical assessment.
+The app is intentionally positioned as personal tracking, structured observation, and care conversation support only. It does not diagnose, predict, treat, prevent, or replace medical assessment.
 
 ## Documentation map
 
@@ -20,6 +20,7 @@ The app is intentionally positioned as personal tracking and care conversation s
 - [Phase 3 - UX Polish and Baseline Comparison](./phases/phase-3-ux-baseline-comparison.md)
 - [Phase 3B - History and Entry Detail Polish](./phases/phase-3b-history-entry-polish.md)
 - [Phase 3C - Privacy and Local Data Controls](./phases/phase-3c-privacy-data-controls.md)
+- [Phase 6C - Structured Screening Foundation](./phases/phase-6c-structured-screening-foundation.md)
 - [Roadmap](./roadmap.md)
 - [Interview Notes](./interview-notes.md)
 
