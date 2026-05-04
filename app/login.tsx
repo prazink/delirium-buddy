@@ -60,7 +60,7 @@ export default function Login() {
 
       <View style={styles.privacyRow}>
         <View style={styles.privacyIcon}>
-          <Icon name="shield" size={24} color="#486385" />
+          <Icon name="lock" size={24} color="#486385" />
         </View>
         <Text style={styles.privacyText}>
           Your information stays on this device unless you choose to share a handover.
