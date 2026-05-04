@@ -31,6 +31,7 @@ export type PersonProfile = {
   displayName: string;
   relationship: string;
   careRole?: string | undefined;
+  avatarUri?: string | undefined;
   ageRange?: string | undefined;
   existingMemoryIssues?: boolean | undefined;
   recentSurgery?: boolean | undefined;
