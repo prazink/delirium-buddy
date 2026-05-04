@@ -17,11 +17,11 @@ export function DashboardBottomNav() {
   const router = useRouter();
 
   return (
-    <View accessibilityRole="tablist" style={styles.wrap}>
+    <View accessibilityLabel="Dashboard navigation" style={styles.wrap}>
       {navItems.map((item) => (
         <Pressable
           key={item.label}
-          accessibilityRole="tab"
+          accessibilityRole="button"
           accessibilityLabel={item.active ? `${item.label}, selected` : item.label}
           accessibilityHint={item.hint}
           accessibilityState={{ selected: Boolean(item.active) }}
