@@ -25,6 +25,7 @@ The app is intentionally positioned as personal tracking, structured observation
 - [Phase 6E - Entry Screening Result Card](./phases/phase-6e-entry-screening-result-card.md)
 - [Phase 6F - Carer Role, Relationship and Typography Polish](./phases/phase-6f-carer-role-relationship-typography.md)
 - [Phase 6G - Profile Avatar Photo Support](./phases/phase-6g-profile-avatar-photo-support.md)
+- [Phase 6H - Handover Summary Upgrade](./phases/phase-6h-handover-summary-upgrade.md)
 - [Roadmap](./roadmap.md)
 - [Interview Notes](./interview-notes.md)
 
