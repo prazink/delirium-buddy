@@ -1,5 +1,7 @@
 import type { FourAtScreening } from '../screening/fourAt';
 
+export type PersonGender = 'male' | 'female' | 'not_specified';
+
 export type LogEntry = {
   id: string;
   date: string;
@@ -32,6 +34,7 @@ export type PersonProfile = {
   relationship: string;
   careRole?: string | undefined;
   avatarUri?: string | undefined;
+  gender?: PersonGender | undefined;
   ageRange?: string | undefined;
   existingMemoryIssues?: boolean | undefined;
   recentSurgery?: boolean | undefined;
