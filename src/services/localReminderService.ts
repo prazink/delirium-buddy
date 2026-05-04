@@ -24,7 +24,9 @@ export async function requestReminderPermission(): Promise<boolean> {
   return requested.granted;
 }
 
-export async function scheduleDailyReminder(settings: Pick<ReminderSettings, 'hour' | 'minute'>): Promise<string> {
+export async function scheduleDailyCheckInReminder(
+  settings: Pick<ReminderSettings, 'hour' | 'minute'>,
+): Promise<string> {
   const granted = await requestReminderPermission();
 
   if (!granted) {
@@ -34,7 +36,7 @@ export async function scheduleDailyReminder(settings: Pick<ReminderSettings, 'ho
   return Notifications.scheduleNotificationAsync({
     content: {
       title: 'Delirium Buddy check-in',
-      body: 'Add today’s care check-in when you have a moment.',
+      body: 'Personal reminder: add today’s care check-in when you have a moment.',
       sound: false,
     },
     trigger: {
@@ -45,8 +47,40 @@ export async function scheduleDailyReminder(settings: Pick<ReminderSettings, 'ho
   });
 }
 
-export async function cancelReminder(notificationId?: string): Promise<void> {
+export async function cancelDailyCheckInReminder(notificationId?: string): Promise<void> {
   if (notificationId) {
     await Notifications.cancelScheduledNotificationAsync(notificationId);
   }
 }
+
+export async function rescheduleDailyCheckInReminder(
+  settings: Pick<ReminderSettings, 'hour' | 'minute' | 'notificationId'>,
+): Promise<string> {
+  await cancelDailyCheckInReminder(settings.notificationId);
+  return scheduleDailyCheckInReminder(settings);
+}
+
+export async function scheduleRepeatCheckReminder(delayMinutes = 120): Promise<string> {
+  const granted = await requestReminderPermission();
+
+  if (!granted) {
+    throw new Error('Notification permission was not granted.');
+  }
+
+  return Notifications.scheduleNotificationAsync({
+    content: {
+      title: 'Delirium Buddy repeat check',
+      body: 'Personal prompt: consider another observation and care conversation note. This is not a medical alert.',
+      sound: false,
+    },
+    trigger: {
+      type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
+      seconds: Math.max(60, delayMinutes * 60),
+      repeats: false,
+    },
+  });
+}
+
+// Backwards-compatible names used by earlier phases.
+export const scheduleDailyReminder = scheduleDailyCheckInReminder;
+export const cancelReminder = cancelDailyCheckInReminder;

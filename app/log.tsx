@@ -24,6 +24,7 @@ import {
   type FourAtArousalScore,
   type FourAtAttentionScore,
 } from '../src/domain/screening/fourAt';
+import { scheduleRepeatCheckReminder } from '../src/services/localReminderService';
 import { loadLogs, saveLogs } from '../src/storage/localLogRepository';
 import { todayISO, toISODate } from '../src/utils/dates';
 import { clamp, toFiniteNumber } from '../src/utils/numbers';
@@ -111,8 +112,7 @@ export default function Log() {
       items.push(entry);
       items.sort((a, b) => a.date.localeCompare(b.date));
       await saveLogs(items);
-      Alert.alert('Saved');
-      router.replace('/');
+      showSavedPrompt(entry);
     } catch (error) {
       Alert.alert('Save failed', String(error));
     } finally {
@@ -294,6 +294,48 @@ export default function Log() {
         </View>
       ) : null}
     </ScrollView>
+  );
+}
+
+function showSavedPrompt(entry: LogEntry) {
+  if (!shouldSuggestRepeatCheck(entry)) {
+    Alert.alert('Saved', 'Entry saved.', [{ text: 'OK', onPress: () => router.replace('/') }]);
+    return;
+  }
+
+  Alert.alert(
+    'Entry saved',
+    'This entry has a higher-concern observation. You can set a local repeat check prompt for later. This is a personal reminder only.',
+    [
+      { text: 'Not now', style: 'cancel', onPress: () => router.replace('/') },
+      {
+        text: 'Remind me in 2 hours',
+        onPress: async () => {
+          try {
+            await scheduleRepeatCheckReminder(120);
+            Alert.alert('Repeat prompt set', 'A local repeat check prompt has been set for later.', [
+              { text: 'OK', onPress: () => router.replace('/') },
+            ]);
+          } catch (error) {
+            Alert.alert('Could not set repeat prompt', String(error), [{ text: 'OK', onPress: () => router.replace('/') }]);
+          }
+        },
+      },
+    ],
+  );
+}
+
+function shouldSuggestRepeatCheck(entry: LogEntry): boolean {
+  const positiveStructuredScreen = entry.fourAt ? scoreFourAt(entry.fourAt).isPositiveScreen : false;
+
+  return Boolean(
+    entry.agitation >= 8 ||
+      entry.confusion >= 8 ||
+      entry.suddenChange ||
+      entry.feverOrInfection ||
+      entry.hallucination ||
+      entry.fallOrNearFall ||
+      positiveStructuredScreen,
   );
 }
 
