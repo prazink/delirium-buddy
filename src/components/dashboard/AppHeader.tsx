@@ -21,11 +21,11 @@ export function AppHeader({ userName, style }: AppHeaderProps) {
 
   return (
     <View style={[styles.container, style]}>
-      <DeliriumBuddyLogo size="sm" centered style={styles.logo} />
+      <DeliriumBuddyLogo size="sm" centered accessibilityLabel="Delirium Buddy home" style={styles.logo} />
 
       <View style={styles.greetingRow}>
         <View style={styles.greetingCopy}>
-          <AppText variant="h1" color={colors.textPrimary} style={styles.greeting}>
+          <AppText variant="h1" color={colors.textPrimary} style={styles.greeting} accessibilityRole="header">
             Good afternoon,{`\n${greetingName}`}
           </AppText>
           <AppText variant="body" color={colors.textSecondary} style={styles.subtitle}>
@@ -33,7 +33,12 @@ export function AppHeader({ userName, style }: AppHeaderProps) {
           </AppText>
         </View>
 
-        <View style={styles.profileCircle} accessibilityElementsHidden>
+        <View
+          accessible
+          accessibilityRole="image"
+          accessibilityLabel="Account profile icon"
+          style={styles.profileCircle}
+        >
           <Icon name="person" size={26} color={palette.navy900} />
         </View>
       </View>
