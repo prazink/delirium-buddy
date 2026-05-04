@@ -1,6 +1,6 @@
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { router } from 'expo-router';
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -16,6 +16,14 @@ import {
   View,
 } from 'react-native';
 
+import type { LogEntry } from '../src/domain/logs/log.types';
+import {
+  scoreFourAt,
+  type FourAtAcuteChangeScore,
+  type FourAtAmt4Score,
+  type FourAtArousalScore,
+  type FourAtAttentionScore,
+} from '../src/domain/screening/fourAt';
 import { loadLogs, saveLogs } from '../src/storage/localLogRepository';
 import { todayISO, toISODate } from '../src/utils/dates';
 import { clamp, toFiniteNumber } from '../src/utils/numbers';
@@ -38,7 +46,22 @@ export default function Log() {
   const [mobilityConcern, setMobilityConcern] = useState(false);
   const [urineInfectionConcern, setUrineInfectionConcern] = useState(false);
   const [glassesOrHearingAidsMissing, setGlassesOrHearingAidsMissing] = useState(false);
+  const [useFourAtScreening, setUseFourAtScreening] = useState(false);
+  const [fourAtArousal, setFourAtArousal] = useState<FourAtArousalScore>(0);
+  const [fourAtAmt4, setFourAtAmt4] = useState<FourAtAmt4Score>(0);
+  const [fourAtAttention, setFourAtAttention] = useState<FourAtAttentionScore>(0);
+  const [fourAtAcuteChange, setFourAtAcuteChange] = useState<FourAtAcuteChangeScore>(0);
   const [saving, setSaving] = useState(false);
+
+  const fourAtResult = useMemo(
+    () => scoreFourAt({
+      arousal: fourAtArousal,
+      amt4: fourAtAmt4,
+      attention: fourAtAttention,
+      acuteChange: fourAtAcuteChange,
+    }),
+    [fourAtAcuteChange, fourAtAmt4, fourAtArousal, fourAtAttention],
+  );
 
   const handleDateChange = (_event: unknown, selectedDate?: Date) => {
     if (Platform.OS === 'android') {
@@ -54,7 +77,7 @@ export default function Log() {
     try {
       setSaving(true);
       const items = await loadLogs();
-      items.push({
+      const entry: LogEntry = {
         id: String(Date.now()),
         date,
         agitation: clamp(toFiniteNumber(agitation), 0, 10),
@@ -72,7 +95,20 @@ export default function Log() {
         urineInfectionConcern,
         glassesOrHearingAidsMissing,
         notes: notes.trim(),
-      });
+      };
+
+      if (useFourAtScreening) {
+        entry.fourAt = {
+          arousal: fourAtArousal,
+          amt4: fourAtAmt4,
+          attention: fourAtAttention,
+          acuteChange: fourAtAcuteChange,
+          completedAt: new Date().toISOString(),
+          assessorRole: 'family_carer',
+        };
+      }
+
+      items.push(entry);
       items.sort((a, b) => a.date.localeCompare(b.date));
       await saveLogs(items);
       Alert.alert('Saved');
@@ -152,6 +188,57 @@ export default function Log() {
           onValueChange={setGlassesOrHearingAidsMissing}
           disabled={saving}
         />
+      </View>
+
+      <View style={styles.sectionCard}>
+        <ToggleRow
+          label="Add structured 4AT screening fields?"
+          value={useFourAtScreening}
+          onValueChange={setUseFourAtScreening}
+          disabled={saving}
+        />
+        <Text style={styles.helpTextSmall}>
+          Optional workflow support for settings where 4AT use is approved. This does not diagnose delirium.
+        </Text>
+
+        {useFourAtScreening ? (
+          <View style={styles.screeningBlock}>
+            <ScoreOptionRow
+              label="Alertness / arousal"
+              selected={fourAtArousal}
+              options={[{ label: '0', value: 0 }, { label: '4', value: 4 }]}
+              onSelect={(value) => setFourAtArousal(value as FourAtArousalScore)}
+              disabled={saving}
+            />
+            <ScoreOptionRow
+              label="AMT4"
+              selected={fourAtAmt4}
+              options={[{ label: '0', value: 0 }, { label: '1', value: 1 }, { label: '2', value: 2 }]}
+              onSelect={(value) => setFourAtAmt4(value as FourAtAmt4Score)}
+              disabled={saving}
+            />
+            <ScoreOptionRow
+              label="Attention"
+              selected={fourAtAttention}
+              options={[{ label: '0', value: 0 }, { label: '1', value: 1 }, { label: '2', value: 2 }]}
+              onSelect={(value) => setFourAtAttention(value as FourAtAttentionScore)}
+              disabled={saving}
+            />
+            <ScoreOptionRow
+              label="Acute change / fluctuating course"
+              selected={fourAtAcuteChange}
+              options={[{ label: '0', value: 0 }, { label: '4', value: 4 }]}
+              onSelect={(value) => setFourAtAcuteChange(value as FourAtAcuteChangeScore)}
+              disabled={saving}
+            />
+
+            <View style={styles.screeningResult}>
+              <Text style={styles.screeningResultTitle}>{fourAtResult.statusLabel}</Text>
+              <Text style={styles.screeningResultScore}>Score: {fourAtResult.totalScore}</Text>
+              <Text style={styles.helpTextSmall}>{fourAtResult.summary}</Text>
+            </View>
+          </View>
+        ) : null}
       </View>
 
       <Field label="Notes" value={notes} onChangeText={setNotes} multiline editable={!saving} />
@@ -239,11 +326,53 @@ function ToggleRow({ label, value, onValueChange, disabled }: ToggleRowProps) {
   );
 }
 
+type ScoreOption = {
+  label: string;
+  value: number;
+};
+
+type ScoreOptionRowProps = {
+  label: string;
+  selected: number;
+  options: ScoreOption[];
+  onSelect: (value: number) => void;
+  disabled?: boolean;
+};
+
+function ScoreOptionRow({ label, selected, options, onSelect, disabled }: ScoreOptionRowProps) {
+  return (
+    <View style={styles.scoreRow}>
+      <Text style={styles.scoreLabel}>{label}</Text>
+      <View style={styles.scoreOptions}>
+        {options.map((option) => {
+          const isSelected = selected === option.value;
+          return (
+            <TouchableOpacity
+              key={`${label}-${option.value}`}
+              accessibilityRole="button"
+              accessibilityLabel={`${label} score ${option.label}`}
+              accessibilityState={{ selected: isSelected, disabled }}
+              disabled={disabled}
+              onPress={() => onSelect(option.value)}
+              style={[styles.scoreButton, isSelected && styles.scoreButtonSelected]}
+            >
+              <Text style={[styles.scoreButtonText, isSelected && styles.scoreButtonTextSelected]}>
+                {option.label}
+              </Text>
+            </TouchableOpacity>
+          );
+        })}
+      </View>
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#f8fafc' },
   content: { padding: 16 },
   title: { fontSize: 22, fontWeight: '700', marginBottom: 6 },
   helpText: { color: '#475569', lineHeight: 20, marginBottom: 12 },
+  helpTextSmall: { color: '#64748b', fontSize: 13, lineHeight: 18, marginBottom: 10 },
   sectionCard: {
     backgroundColor: '#fff',
     borderRadius: 16,
@@ -270,6 +399,27 @@ const styles = StyleSheet.create({
   dateButtonIcon: { fontSize: 18 },
   switchRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 },
   switchLabel: { flex: 1, fontWeight: '600', paddingRight: 12 },
+  screeningBlock: { marginTop: 2 },
+  scoreRow: { marginBottom: 12 },
+  scoreLabel: { color: '#334155', fontWeight: '700', marginBottom: 8 },
+  scoreOptions: { flexDirection: 'row', gap: 8 },
+  scoreButton: {
+    minHeight: 42,
+    minWidth: 52,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#cbd5e1',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#fff',
+    paddingHorizontal: 12,
+  },
+  scoreButtonSelected: { backgroundColor: '#111827', borderColor: '#111827' },
+  scoreButtonText: { color: '#334155', fontWeight: '700' },
+  scoreButtonTextSelected: { color: '#fff' },
+  screeningResult: { backgroundColor: '#f1f5f9', borderRadius: 14, padding: 12, marginTop: 2 },
+  screeningResultTitle: { color: '#111827', fontWeight: '800', marginBottom: 4 },
+  screeningResultScore: { color: '#334155', fontWeight: '700', marginBottom: 6 },
   saveBtn: { backgroundColor: '#111827', paddingVertical: 14, alignItems: 'center', borderRadius: 12, marginBottom: 24 },
   saveBtnDisabled: { opacity: 0.8 },
   saveInner: { flexDirection: 'row', alignItems: 'center', gap: 8 },
