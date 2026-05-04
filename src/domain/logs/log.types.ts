@@ -1,3 +1,5 @@
+import type { FourAtScreening } from '../screening/fourAt';
+
 export type LogEntry = {
   id: string;
   date: string;
@@ -15,6 +17,7 @@ export type LogEntry = {
   urineInfectionConcern?: boolean | undefined;
   glassesOrHearingAidsMissing?: boolean | undefined;
   suddenChange?: boolean | undefined;
+  fourAt?: FourAtScreening | undefined;
   notes?: string | undefined;
 };
 
