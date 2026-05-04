@@ -59,12 +59,13 @@ function formatDateRange(points: DailyTrendPoint[]): string {
 }
 
 function getDailyTrendPoints(logs: LogEntry[]): DailyTrendPoint[] {
-  const byDate = new Map<string, { total: number; count: number }>();
+  const byDate = new Map<string, { lowestScore: number; count: number }>();
 
   logs.forEach((log) => {
-    const existing = byDate.get(log.date) ?? { total: 0, count: 0 };
+    const score = wellbeing(log);
+    const existing = byDate.get(log.date) ?? { lowestScore: MAX_SCORE, count: 0 };
     byDate.set(log.date, {
-      total: existing.total + wellbeing(log),
+      lowestScore: Math.min(existing.lowestScore, score),
       count: existing.count + 1,
     });
   });
@@ -74,14 +75,14 @@ function getDailyTrendPoints(logs: LogEntry[]): DailyTrendPoint[] {
     .slice(-7)
     .map(([date, value]) => ({
       date,
-      score: value.total / value.count,
+      score: value.lowestScore,
       count: value.count,
     }));
 }
 
 /**
  * 7-day SVG trend line chart + right-side summary panel.
- * Multiple check-ins on the same date are averaged into one daily point so labels stay readable.
+ * Multiple check-ins on the same date become one daily point using the highest concern recorded that day.
  * @example <DashboardTrendChart logs={logs} />
  */
 export function DashboardTrendChart({ logs, style }: DashboardTrendChartProps) {
