@@ -10,6 +10,7 @@ export default function ProfileScreen() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [displayName, setDisplayName] = useState('');
+  const [careRole, setCareRole] = useState('Primary carer');
   const [relationship, setRelationship] = useState('');
   const [ageRange, setAgeRange] = useState('');
   const [normalMobility, setNormalMobility] = useState('');
@@ -26,6 +27,7 @@ export default function ProfileScreen() {
 
       if (profile) {
         setDisplayName(profile.displayName);
+        setCareRole(profile.careRole ?? 'Primary carer');
         setRelationship(profile.relationship);
         setAgeRange(profile.ageRange ?? '');
         setNormalMobility(profile.normalMobility ?? '');
@@ -45,6 +47,7 @@ export default function ProfileScreen() {
 
   async function saveProfile() {
     const trimmedName = displayName.trim();
+    const trimmedCareRole = careRole.trim();
     const trimmedRelationship = relationship.trim();
 
     if (!trimmedName || !trimmedRelationship) {
@@ -59,6 +62,7 @@ export default function ProfileScreen() {
         id: existing?.id ?? String(Date.now()),
         displayName: trimmedName,
         relationship: trimmedRelationship,
+        careRole: trimmedCareRole || 'Primary carer',
         ageRange: ageRange.trim() || undefined,
         normalMobility: normalMobility.trim() || undefined,
         normalSleepMin: toFiniteNumber(normalSleepMin, 5),
@@ -96,7 +100,8 @@ export default function ProfileScreen() {
       </Text>
 
       <Field label="Person name or nickname" value={displayName} onChangeText={setDisplayName} editable={!saving} />
-      <Field label="Your relationship" value={relationship} onChangeText={setRelationship} placeholder="e.g. Dad, Mum, Patient, Client" editable={!saving} />
+      <Field label="Your care role" value={careRole} onChangeText={setCareRole} placeholder="e.g. Primary carer, Nurse, Support worker" editable={!saving} />
+      <Field label="Your relationship" value={relationship} onChangeText={setRelationship} placeholder="e.g. Godson, Daughter, Spouse, Nurse" editable={!saving} />
       <Field label="Age range" value={ageRange} onChangeText={setAgeRange} placeholder="e.g. 70s" editable={!saving} />
       <Field label="Normal sleep min hours" value={normalSleepMin} onChangeText={setNormalSleepMin} keyboardType="number-pad" editable={!saving} />
       <Field label="Normal sleep max hours" value={normalSleepMax} onChangeText={setNormalSleepMax} keyboardType="number-pad" editable={!saving} />
