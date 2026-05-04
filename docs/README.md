@@ -26,6 +26,7 @@ The app is intentionally positioned as personal tracking, structured observation
 - [Phase 6F - Carer Role, Relationship and Typography Polish](./phases/phase-6f-carer-role-relationship-typography.md)
 - [Phase 6G - Profile Avatar Photo Support](./phases/phase-6g-profile-avatar-photo-support.md)
 - [Phase 6H - Handover Summary Upgrade](./phases/phase-6h-handover-summary-upgrade.md)
+- [Phase 6I - Reminder and Repeat Check Workflow](./phases/phase-6i-reminder-repeat-check-workflow.md)
 - [Roadmap](./roadmap.md)
 - [Interview Notes](./interview-notes.md)
 
