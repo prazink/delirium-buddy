@@ -6,23 +6,25 @@ import { palette } from '../../theme/tokens';
 import { AppText } from '../ui/AppText';
 import { Icon, type IconName } from '../ui/Icon';
 
-const navItems: Array<{ label: string; icon: IconName; href: '/' | '/history' | '/summary' | '/settings'; active?: boolean }> = [
-  { label: 'Home', icon: 'home', href: '/', active: true },
-  { label: 'Check-ins', icon: 'clipboard', href: '/history' },
-  { label: 'Handover', icon: 'people', href: '/summary' },
-  { label: 'More', icon: 'more-horizontal', href: '/settings' },
+const navItems: Array<{ label: string; icon: IconName; href: '/' | '/history' | '/summary' | '/settings'; active?: boolean; hint: string }> = [
+  { label: 'Home', icon: 'home', href: '/', active: true, hint: 'Shows the dashboard overview.' },
+  { label: 'Check-ins', icon: 'clipboard', href: '/history', hint: 'Opens check-in history.' },
+  { label: 'Handover', icon: 'people', href: '/summary', hint: 'Opens the seven day handover summary.' },
+  { label: 'More', icon: 'more-horizontal', href: '/settings', hint: 'Opens settings and local data controls.' },
 ];
 
 export function DashboardBottomNav() {
   const router = useRouter();
 
   return (
-    <View style={styles.wrap}>
+    <View accessibilityRole="tablist" style={styles.wrap}>
       {navItems.map((item) => (
         <Pressable
           key={item.label}
-          accessibilityRole="button"
-          accessibilityLabel={item.label}
+          accessibilityRole="tab"
+          accessibilityLabel={item.active ? `${item.label}, selected` : item.label}
+          accessibilityHint={item.hint}
+          accessibilityState={{ selected: Boolean(item.active) }}
           onPress={() => router.push(item.href)}
           style={({ pressed }) => [styles.item, item.active && styles.itemActive, pressed && styles.pressed]}
         >
