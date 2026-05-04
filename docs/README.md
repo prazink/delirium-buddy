@@ -15,6 +15,8 @@ The app is intentionally positioned as personal tracking, structured observation
 - [MVP Explainer](./mvp-explainer.md)
 - [Product Vision](./product-vision.md)
 - [Architecture Overview](./architecture.md)
+- [Release QA Checklist](./release-qa-checklist.md)
+- [App Store Safe Positioning](./app-store-positioning.md)
 - [Phase 1 - Codebase Hardening and Expo SDK 54 Upgrade](./phases/phase-1-codebase-hardening.md)
 - [Phase 2 - Carer MVP Profile and Summary Features](./phases/phase-2-carer-mvp.md)
 - [Phase 3 - UX Polish and Baseline Comparison](./phases/phase-3-ux-baseline-comparison.md)
@@ -28,6 +30,7 @@ The app is intentionally positioned as personal tracking, structured observation
 - [Phase 6H - Handover Summary Upgrade](./phases/phase-6h-handover-summary-upgrade.md)
 - [Phase 6I - Reminder and Repeat Check Workflow](./phases/phase-6i-reminder-repeat-check-workflow.md)
 - [Phase 6J - Premium UI Polish and Brand Alignment](./phases/phase-6j-premium-ui-brand-polish.md)
+- [Phase 6K - Release Accessibility and Safety Review](./phases/phase-6k-release-accessibility-safety-review.md)
 - [Roadmap](./roadmap.md)
 - [Interview Notes](./interview-notes.md)
 
