@@ -27,15 +27,16 @@ export function DashboardReminderCard({ style }: DashboardReminderCardProps) {
 
   const enabled = Boolean(settings?.enabled);
   const timeLabel = formatTime(settings?.hour ?? 18, settings?.minute ?? 0);
+  const statusLabel = enabled ? `Daily reminder set for ${timeLabel}` : 'Daily reminder is off';
 
   return (
-    <Card style={[styles.card, style]}>
-      <AppText variant="sectionTitle" color={colors.textPrimary} style={styles.title}>
+    <Card style={[styles.card, style]} accessibilityLabel={statusLabel}>
+      <AppText variant="sectionTitle" color={colors.textPrimary} style={styles.title} accessibilityRole="header">
         Daily reminder
       </AppText>
 
       <View style={styles.bodyRow}>
-        <View style={styles.iconBubble} accessibilityElementsHidden>
+        <View style={styles.iconBubble} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
           <Icon name="bell" size={24} color={palette.navy900} />
         </View>
         <View style={styles.copy}>
@@ -50,7 +51,8 @@ export function DashboardReminderCard({ style }: DashboardReminderCardProps) {
 
       <Pressable
         accessibilityRole="button"
-        accessibilityLabel="Edit reminder"
+        accessibilityLabel="Edit daily reminder"
+        accessibilityHint="Opens Settings to change reminder options."
         onPress={() => router.push('/settings')}
         style={({ pressed }) => [styles.button, pressed && styles.pressed]}
       >

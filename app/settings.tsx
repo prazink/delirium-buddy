@@ -47,7 +47,7 @@ export default function SettingsScreen() {
   }, []);
 
   function confirmClearData() {
-    Alert.alert('Clear local data?', 'This removes local profile, check-ins and reminder settings from this device. This cannot be undone.', [
+    Alert.alert('Clear local data?', 'This removes the profile, check-ins and reminder settings stored on this device. This cannot be undone.', [
       { text: 'Cancel', style: 'cancel' },
       { text: 'Clear data', style: 'destructive', onPress: clearAllData },
     ]);
@@ -76,7 +76,7 @@ export default function SettingsScreen() {
         const nextSettings: ReminderSettings = { ...reminder, enabled: true, notificationId, updatedAt: new Date().toISOString() };
         await saveReminderSettings(nextSettings);
         setReminder(nextSettings);
-        Alert.alert('Reminder enabled', 'A local personal daily check-in reminder has been scheduled.');
+        Alert.alert('Reminder enabled', 'A personal daily check-in reminder has been scheduled on this device.');
         return;
       }
 
@@ -84,7 +84,7 @@ export default function SettingsScreen() {
       const nextSettings: ReminderSettings = { ...reminder, enabled: false, notificationId: undefined, updatedAt: new Date().toISOString() };
       await saveReminderSettings(nextSettings);
       setReminder(nextSettings);
-      Alert.alert('Reminder disabled', 'The local daily reminder has been turned off.');
+      Alert.alert('Reminder disabled', 'The daily reminder has been turned off.');
     } catch (error) {
       Alert.alert('Reminder update failed', String(error));
     } finally {
@@ -110,7 +110,7 @@ export default function SettingsScreen() {
       await saveReminderSettings(nextSettings);
       setReminder(nextSettings);
       if (nextSettings.enabled) {
-        Alert.alert('Reminder time updated', 'Your local daily check-in reminder has been rescheduled.');
+        Alert.alert('Reminder time updated', 'Your daily check-in reminder has been rescheduled on this device.');
       }
     } catch (error) {
       Alert.alert('Reminder time update failed', String(error));
@@ -129,7 +129,7 @@ export default function SettingsScreen() {
       setClearing(true);
       if (reminder?.notificationId) await cancelDailyCheckInReminder(reminder.notificationId);
       await Promise.all([clearLogs(), clearPersonProfile(), clearUser(), clearReminderSettings()]);
-      Alert.alert('Local data cleared', 'All local Delirium Buddy data has been removed from this device.');
+      Alert.alert('Local data cleared', 'All Delirium Buddy data has been removed from this device.');
       router.replace('/login');
     } catch (error) {
       Alert.alert('Could not clear data', String(error));
@@ -146,22 +146,36 @@ export default function SettingsScreen() {
       <Text style={styles.title}>Settings</Text>
 
       <View style={styles.card}>
-        <Text style={styles.cardTitle}>Local-only MVP</Text>
-        <Text style={styles.bodyText}>Delirium Buddy currently stores your check-ins, profile and local user on this device only.</Text>
-        <Text style={styles.bodyText}>This version does not sync to a server or send entries outside the app.</Text>
+        <Text style={styles.cardTitle}>On-device privacy</Text>
+        <Text style={styles.bodyText}>Delirium Buddy stores your check-ins, profile and reminder settings on this device.</Text>
+        <Text style={styles.bodyText}>Entries are not sent outside the app unless you choose to share or export them.</Text>
       </View>
 
       <View style={styles.card}>
         <Text style={styles.cardTitle}>Daily check-in reminder</Text>
-        <Text style={styles.bodyText}>Turn on a local personal reminder to help you remember a daily check-in. This is a care-conversation prompt only.</Text>
+        <Text style={styles.bodyText}>Turn on a personal reminder to help you remember a daily check-in. This is a care-conversation prompt only.</Text>
         <View style={styles.reminderRow}>
           <View style={styles.reminderCopy}>
             <Text style={styles.reminderTitle}>{reminder?.enabled ? 'Reminder on' : 'Reminder off'}</Text>
             <Text style={styles.reminderText}>Reminder time: {formatTime(reminder?.hour ?? 18, reminder?.minute ?? 0)}</Text>
           </View>
-          <Switch value={Boolean(reminder?.enabled)} onValueChange={toggleReminder} disabled={!reminder || savingReminder} />
+          <Switch
+            value={Boolean(reminder?.enabled)}
+            onValueChange={toggleReminder}
+            disabled={!reminder || savingReminder}
+            accessibilityLabel="Daily check-in reminder"
+            accessibilityHint="Turns the personal daily check-in reminder on or off."
+          />
         </View>
-        <TouchableOpacity style={[styles.secondaryButton, (!reminder || savingReminder) && styles.disabledButton]} onPress={() => setShowTimePicker(true)} disabled={!reminder || savingReminder} activeOpacity={0.8}>
+        <TouchableOpacity
+          style={[styles.secondaryButton, (!reminder || savingReminder) && styles.disabledButton]}
+          onPress={() => setShowTimePicker(true)}
+          disabled={!reminder || savingReminder}
+          activeOpacity={0.8}
+          accessibilityRole="button"
+          accessibilityLabel="Change reminder time"
+          accessibilityHint="Opens the time picker for the daily reminder."
+        >
           <Text style={styles.secondaryButtonText}>Change reminder time</Text>
         </TouchableOpacity>
         <Text style={styles.safeText}>Reminders stay on this device. They do not alert staff or send any data outside the app.</Text>
@@ -170,7 +184,15 @@ export default function SettingsScreen() {
       <View style={styles.card}>
         <Text style={styles.cardTitle}>Export local logs</Text>
         <Text style={styles.bodyText}>Share a plain-text export of the check-ins stored on this device. You choose where to send or save it.</Text>
-        <TouchableOpacity style={[styles.primaryButton, exporting && styles.disabledButton]} onPress={exportAllLogs} disabled={exporting} activeOpacity={0.8}>
+        <TouchableOpacity
+          style={[styles.primaryButton, exporting && styles.disabledButton]}
+          onPress={exportAllLogs}
+          disabled={exporting}
+          activeOpacity={0.8}
+          accessibilityRole="button"
+          accessibilityLabel="Export all local logs"
+          accessibilityHint="Opens the share sheet with a plain text export of check-ins."
+        >
           {exporting ? (
             <View style={styles.buttonInner}>
               <ActivityIndicator color="#fff" />
@@ -184,13 +206,21 @@ export default function SettingsScreen() {
 
       <View style={styles.card}>
         <Text style={styles.cardTitle}>Care safety</Text>
-        <Text style={styles.bodyText}>This app supports personal tracking and care conversations only. It does not replace professional assessment.</Text>
+        <Text style={styles.bodyText}>This app supports personal tracking, structured check-ins and care conversations only. It does not diagnose, treat, prevent or replace professional assessment.</Text>
       </View>
 
       <View style={styles.dangerCard}>
         <Text style={styles.cardTitle}>Clear local data</Text>
-        <Text style={styles.bodyText}>Remove the local user, person profile, reminder settings and all check-ins stored on this device.</Text>
-        <TouchableOpacity style={[styles.dangerButton, clearing && styles.disabledButton]} onPress={confirmClearData} disabled={clearing} activeOpacity={0.8}>
+        <Text style={styles.bodyText}>Remove the profile, reminder settings and all check-ins stored on this device.</Text>
+        <TouchableOpacity
+          style={[styles.dangerButton, clearing && styles.disabledButton]}
+          onPress={confirmClearData}
+          disabled={clearing}
+          activeOpacity={0.8}
+          accessibilityRole="button"
+          accessibilityLabel="Clear local data"
+          accessibilityHint="Deletes profile, reminder settings and check-ins stored on this device."
+        >
           {clearing ? (
             <View style={styles.buttonInner}>
               <ActivityIndicator color="#fff" />
@@ -207,9 +237,9 @@ export default function SettingsScreen() {
           <View style={styles.modalOverlay}>
             <View style={styles.modalContent}>
               <View style={styles.modalHeader}>
-                <TouchableOpacity onPress={() => setShowTimePicker(false)}><Text style={styles.modalButton}>Cancel</Text></TouchableOpacity>
+                <TouchableOpacity onPress={() => setShowTimePicker(false)} accessibilityRole="button" accessibilityLabel="Cancel reminder time change"><Text style={styles.modalButton}>Cancel</Text></TouchableOpacity>
                 <Text style={styles.modalTitle}>Reminder time</Text>
-                <TouchableOpacity onPress={() => setShowTimePicker(false)}><Text style={styles.modalButton}>Done</Text></TouchableOpacity>
+                <TouchableOpacity onPress={() => setShowTimePicker(false)} accessibilityRole="button" accessibilityLabel="Done choosing reminder time"><Text style={styles.modalButton}>Done</Text></TouchableOpacity>
               </View>
               <DateTimePicker value={pickerValue} mode="time" display="spinner" onChange={handleTimeChange} style={styles.timePicker} />
             </View>

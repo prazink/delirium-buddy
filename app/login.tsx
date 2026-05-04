@@ -53,13 +53,13 @@ export default function Login() {
     <ScrollView style={styles.container} contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
       <DeliriumBuddyLogo size="lg" centered style={styles.logo} />
 
-      <Text style={styles.title}>Welcome to Delirium Buddy</Text>
+      <Text style={styles.title} accessibilityRole="header">Welcome to Delirium Buddy</Text>
       <Text style={styles.subtitle}>
         Track daily changes, support structured checks, and prepare clear handovers for care conversations.
       </Text>
 
-      <View style={styles.privacyRow}>
-        <View style={styles.privacyIcon}>
+      <View style={styles.privacyRow} accessible accessibilityLabel="Privacy note. Your information stays on this device unless you choose to share a handover.">
+        <View style={styles.privacyIcon} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
           <Icon name="shield-lock" size={28} color="#486385" />
         </View>
         <Text style={styles.privacyText}>
@@ -85,6 +85,8 @@ export default function Login() {
           editable={!loading}
           returnKeyType="done"
           onSubmitEditing={onSubmitCreate}
+          accessibilityLabel="Your name"
+          accessibilityHint="Enter your name to create an account on this device."
         />
       </View>
 
@@ -93,6 +95,9 @@ export default function Login() {
         onPress={onSubmitCreate}
         disabled={loading}
         activeOpacity={0.86}
+        accessibilityRole="button"
+        accessibilityLabel="Create account"
+        accessibilityHint="Creates an account on this device and opens the dashboard."
       >
         {loading ? (
           <View style={styles.btnInner}>
@@ -109,6 +114,9 @@ export default function Login() {
         onPress={onSubmitLogin}
         disabled={loading}
         activeOpacity={0.8}
+        accessibilityRole="button"
+        accessibilityLabel="I already have an account"
+        accessibilityHint="Checks for an existing account on this device."
       >
         <Text style={styles.secondaryBtnText}>I already have an account</Text>
       </TouchableOpacity>

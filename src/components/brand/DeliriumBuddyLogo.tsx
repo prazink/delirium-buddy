@@ -11,6 +11,7 @@ interface DeliriumBuddyLogoProps {
   size?: LogoSize;
   showWordmark?: boolean;
   centered?: boolean;
+  accessibilityLabel?: string;
   style?: StyleProp<ViewStyle>;
 }
 
@@ -28,15 +29,23 @@ export function DeliriumBuddyLogo({
   size = 'md',
   showWordmark = true,
   centered = false,
+  accessibilityLabel = 'Delirium Buddy app logo',
   style,
 }: DeliriumBuddyLogoProps) {
   const markSize = sizeMap[size];
 
   return (
-    <View style={[styles.wrap, centered && styles.centered, style]}>
-      <LogoMark size={markSize} />
+    <View
+      accessible
+      accessibilityRole="image"
+      accessibilityLabel={accessibilityLabel}
+      style={[styles.wrap, centered && styles.centered, style]}
+    >
+      <View accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
+        <LogoMark size={markSize} />
+      </View>
       {showWordmark ? (
-        <View style={styles.wordmark}>
+        <View style={styles.wordmark} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
           <AppText
             variant={size === 'lg' ? 'h1' : 'h2'}
             color={palette.navy900}
@@ -52,7 +61,7 @@ export function DeliriumBuddyLogo({
 
 function LogoMark({ size }: { size: number }) {
   return (
-    <Svg width={size} height={size} viewBox="0 0 96 96" fill="none" accessibilityRole="image">
+    <Svg width={size} height={size} viewBox="0 0 96 96" fill="none">
       <Circle cx="48" cy="48" r="36" stroke="#486385" strokeWidth="4" opacity="0.9" />
       <Path
         d="M18 54c4 18 19 30 39 27-11-5-18-12-22-22-5-1-11-2-17-5z"
