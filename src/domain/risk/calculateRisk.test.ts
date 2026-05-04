@@ -67,9 +67,9 @@ describe('calculateRisk', () => {
   it('adds structured screening reasons when optional screening data is present', () => {
     const result = calculateRisk([
       makeLog({
-        agitation: 5,
-        confusion: 5,
-        sleepHours: 5,
+        agitation: 6,
+        confusion: 6,
+        sleepHours: 4,
         fourAt: {
           arousal: 0,
           amt4: 0,
