@@ -44,6 +44,7 @@ export const PersonProfileSchema = z.object({
   id: z.string().min(1),
   displayName: z.string().trim().min(1).max(120),
   relationship: z.string().trim().min(1).max(120),
+  careRole: z.string().trim().max(120).optional(),
   ageRange: z.string().trim().max(80).optional(),
   existingMemoryIssues: z.boolean().optional(),
   recentSurgery: z.boolean().optional(),
